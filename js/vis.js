@@ -45,15 +45,16 @@ const Vis = (() => {
     return (st.expo[key] = out);
   }
   // Share of swell from direction `dir` (degrees it comes from) that reaches the spot. Never zero: swell wraps around points.
-  function trans(open, dir) {
+  function trans(open, dir, per) {
     if (!open || dir == null) return 1;
+    const floor = 0.2 + 0.2 * Math.max(0, Math.min(1, ((per ?? 10) - 8) / 6));   // 0.2 for short chop, 0.4 for 14 s+ swell
     const n = open.length, w0 = 360 / n; let s = 0, t = 0;
     for (let b = 0; b < n; b++) {
       let d = Math.abs(b * w0 - dir) % 360; if (d > 180) d = 360 - d;
       if (d > 50) continue;
       const w = Math.cos(d * Math.PI / 120) ** 2; s += w * open[b]; t += w;
     }
-    return 0.2 + 0.8 * (t ? s / t : 1);
+    return floor + (1 - floor) * (t ? s / t : 1);
   }
   const pf = T => T == null ? 1 : Math.max(0.75, Math.min(1.3, Math.sqrt(T / 10)));   // long-period swell reaches deeper
   const compass = d => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(d / 45) % 8];
@@ -118,7 +119,7 @@ const Vis = (() => {
     const pt = nearest(st.cond?.points, lon, lat, p => [p.lon, p.lat], 20);
     if (!pt || !pt.it.wh) return null;
     const p = pt.it, t0 = +new Date(p.t0 + "Z"), open = exposure(lon, lat);
-    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, hn: w == null ? null : w * trans(open, p.wdir?.[j]) * pf(p.wp?.[j]),
+    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, hn: w == null ? null : w * trans(open, p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]),
       per: p.wp?.[j], wind: p.ws?.[j], wdir: p.wd?.[j], sst: p.sst?.[j], cloud: p.cc?.[j] }));
   }
 
@@ -177,7 +178,7 @@ const Vis = (() => {
       const open = exposure(lon, lat, opt.coarse);
       const nowI = Math.max(0, Math.min(n - 1, Math.floor((Date.now() - t0) / H3)));
       // swell that actually reaches the spot: offshore height x sheltering x period effect
-      const near = j => p.wh?.[j] == null ? null : p.wh[j] * trans(open, p.wdir?.[j]) * pf(p.wp?.[j]);
+      const near = j => p.wh?.[j] == null ? null : p.wh[j] * trans(open, p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]);
       // swell memory: the biggest swell of the last 3 days, fading with a ~30 h settling time
       const heff = i => { let m = null;
         for (let j = Math.max(0, i - 24); j <= i; j++) { const v = near(j); if (v == null) continue; const x = v * Math.exp(-(i - j) * 3 / 30); if (m == null || x > m) m = x; }
@@ -189,7 +190,7 @@ const Vis = (() => {
         h = c ? sum / c : null; idx = Math.min(n - 1, a + 4);
       }
       hOff = p.wh?.[idx]; period = p.wp?.[idx]; sdir = p.wdir?.[idx]; wind = p.ws?.[idx]; sst = p.sst?.[idx];
-      shelter = trans(open, sdir);
+      shelter = trans(open, sdir, period);
       const nowNear = near(idx);
       settling = h != null && nowNear != null && h >= 1.5 && h > nowNear * 1.25;
     }

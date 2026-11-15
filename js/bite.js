@@ -40,6 +40,9 @@ const Bite = (() => {
     const S = Vis.series(lon, lat), tide = Vis.tideTimeline(lon, lat);
     if (!S || !S.length) return null;
     const now = Date.now(), visByDay = {};
+    const AL = typeof alertsAt === "function" ? alertsAt(lat, lon) : [];
+    const SURF = /High Surf|Beach Hazards|Rip Current|Coastal Flood|Tsunami/, SEA = /Small Craft|Gale Warning|Storm Warning|Hazardous Seas Warning|Hurricane Force|Special Marine|Tsunami/;
+    const worst = list => list.sort((a, b) => /Warning/.test(b.event) - /Warning/.test(a.event))[0] || null;
     return S.map((s, i) => {
       const mid = s.t + H3 / 2, L = la(s.t);
       const e = { ...s, i, mid, L };
@@ -70,6 +73,9 @@ const Bite = (() => {
       if (!(d in visByDay)) visByDay[d] = Vis.estimate(lon, lat, d)?.ft ?? null;
       e.vis = visByDay[d];
       e.grunion = !!e.dusk && grunionNight(mid, lat);
+      const active = AL.filter(a => (!a.onset || +new Date(a.onset) < s.t + H3) && (!a.ends || +new Date(a.ends) > s.t));
+      e.surfWarn = worst(active.filter(a => SURF.test(a.event)));
+      e.seaWarn = worst(active.filter(a => SEA.test(a.event)));
       return e;
     });
   }
@@ -80,6 +86,12 @@ const Bite = (() => {
     const add = (m, text, show) => { p *= m; if (text && (m !== 1 || show)) why.push({ up: m >= 1, w: Math.abs(Math.log(m)) + (show ? 0.01 : 0), text }); };
     const boat = id === "rockfish" || id === "lingcod";
     const h = e.hn, w = e.wind, rate = e.rate == null ? null : Math.abs(e.rate);
+    // Safety first: an active National Weather Service warning overrides everything else.
+    const shore = id === "surfperch" || id === "halibut" || id === "crab";
+    if (shore && e.surfWarn) add(/Warning/.test(e.surfWarn.event) ? .3 : .45, `${e.surfWarn.event} in effect: dangerous on beaches, rocks and jetties`);
+    if (id !== "surfperch" && e.seaWarn) add(/Small Craft/.test(e.seaWarn.event) ? .45 : .25, `${e.seaWarn.event} in effect: unsafe for small boats and kayaks`);
+    // Very large swell offshore means surges and sneaker waves even where the coast gives some shelter.
+    if (shore && e.h != null && e.h >= 2.4) add(e.h >= 3.5 ? .5 : .7, `${Math.round(e.h * 3.28084)} ft swell offshore: surges and sneaker waves even in sheltered spots`);
     if (boat) {
       if (h != null) add(h < 1.2 ? 1 : h < 2 ? .8 : h < 2.8 ? .5 : .2, h < 1.2 ? "small swell at this spot" : h < 2 ? "moderate swell makes it harder to fish" : "big swell: rough and hard to hold bottom", h < 1.2);
       if (h != null && h >= 1.5 && e.per != null && e.per < 8) add(.85, "short, steep chop");

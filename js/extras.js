@@ -69,17 +69,22 @@ function renderGuide(ev) {
 }
 
 /* ------------------------------------------------------------------ marine weather warnings (National Weather Service) */
+// Warnings that cover a spot (marine zones by containment; beach zones if within ~6 miles), including ones starting later
+function alertsAt(lat, lon) {
+  const C = D.conditions, now = Date.now(), hit = [];
+  for (const a of C?.alerts || []) {
+    if (a.ends && new Date(a.ends) < now) continue;
+    const z = a.zones.map(id => [id, C.zones[id]]).find(([id, z]) => z && (Geo.contains(z.geom, lon, lat) ||
+      (id.startsWith("CAZ") && Geo.edgeDist(Geo.geomRings(z.geom), lon, lat).d < 10000)));
+    if (z && !hit.some(h => h.event === a.event && h.ends === a.ends)) hit.push({ ...a, zone: z[1].name });
+  }
+  return hit;
+}
 function renderWx(lat, lon) {
   const W = $("wx"), C = D.conditions;
   if (!C || !("alerts" in C)) { W.hidden = true; return; }
   if (C.alerts === null) { W.hidden = false; W.className = "wx"; W.innerHTML = `Couldn't check weather warnings on the last update. See <a href="https://www.weather.gov/marine" target="_blank" rel="noopener noreferrer">weather.gov/marine</a>.`; return; }
-  const now = Date.now(), hit = [];
-  for (const a of C.alerts) {
-    if (a.ends && new Date(a.ends) < now) continue;
-    const z = a.zones.map(id => [id, C.zones[id]]).find(([id, z]) => z && (Geo.contains(z.geom, lon, lat) ||
-      (id.startsWith("CAZ") && Geo.edgeDist(Geo.geomRings(z.geom), lon, lat).d < 10000)));
-    if (z && !hit.some(h => h.event === a.event)) hit.push({ ...a, zone: z[1].name });
-  }
+  const now = Date.now(), hit = alertsAt(lat, lon).filter((a, i, arr) => arr.findIndex(b => b.event === a.event) === i);
   if (!hit.length) { W.hidden = true; return; }
   const sevRank = s => ({ Extreme: 0, Severe: 1, Moderate: 2, Minor: 3 }[s] ?? 4);
   hit.sort((a, b) => sevRank(a.severity) - sevRank(b.severity));

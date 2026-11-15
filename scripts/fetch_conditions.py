@@ -266,6 +266,64 @@ if cfg.get("csv_url"):
     log["reports"] = len(reports)
 print("reports:", len(reports))
 
+# ------------------------------------------------------------------ nearshore wave heights (Scripps CDIP "MOP" model)
+# Wave height at 10 m depth every ~1 km alongshore, which accounts for headlands, islands and refraction.
+# Stored on the same 3-hourly grid as the points above: mop = {j0, pts: [[lon, lat, [height in decimeters or -1, ...]]]}
+mop = None
+try:
+    MB = "https://thredds.cdip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore/"
+    STRIDE = 10
+    t0s = [p["t0"] for p in points if p.get("t0")]
+    T0 = dt.datetime.fromisoformat(t0s[0]).replace(tzinfo=dt.timezone.utc).timestamp()
+    nsteps = max(len(p.get("wh", [])) for p in points)
+    jnow = int((now.timestamp() - T0) // 10800)
+    j0 = max(0, jnow - 8)
+    grid = [T0 + j * 10800 for j in range(j0, nsteps)]
+    def body(txt):
+        return txt.split("-----", 1)[1].split("\n", 1)[1] if "-----" in txt else ""
+    def vec(txt):
+        return [float(v) for v in re.findall(r"-?\d+\.?\d*(?:[eE][-+]?\d+)?", "\n".join(body(txt).split("\n")[1:]))]
+    def rows(txt):
+        out_rows = []
+        for ln in body(txt).split("\n"):
+            if ln.startswith("["):
+                out_rows.append([float(v) if re.match(r"^-?\d", v) else float("nan") for v in ln.split(", ")[1:]])
+        return out_rows
+    pts_out = []
+    for region in ("norcal", "socal"):
+        srcs = []
+        for kind in ("nowcast", "forecast"):
+            f = f"{MB}{region}_alongshore_{kind}.nc"
+            d = get(f + ".dds")
+            dims = dict(re.findall(r"(\w+) = (\d+)\]", d.text))
+            N, TN = int(dims["siteCount"]), int(dims["waveTime"])
+            times = vec(get(f + f".ascii?waveTime[0:1:{TN-1}]").text)
+            hs = rows(get(f + f".ascii?waveHs[0:1:{TN-1}][0:{STRIDE}:{N-1}]").text)
+            srcs.append((kind, times, hs))
+            if kind == "nowcast":
+                lat = vec(get(f + f".ascii?metaLatitude[0:{STRIDE}:{N-1}]").text)
+                lon = vec(get(f + f".ascii?metaLongitude[0:{STRIDE}:{N-1}]").text)
+        series = [[-1] * len(grid) for _ in lat]
+        for gi, gt in enumerate(grid):
+            best = None
+            for kind, times, hs in srcs:        # nowcast first, so it wins ties for the recent past
+                for ti, t in enumerate(times):
+                    dtm = abs(t - gt)
+                    if dtm <= 5400 and (best is None or dtm < best[0]) and ti < len(hs):
+                        best = (dtm, hs[ti])
+            if best:
+                for si, v in enumerate(best[1][:len(lat)]):
+                    if v == v and 0 <= v < 25:
+                        series[si][gi] = round(v * 10)
+        for si in range(len(lat)):
+            if any(v >= 0 for v in series[si]):
+                pts_out.append([round(lon[si], 4), round(lat[si], 4), series[si]])
+    mop = {"j0": j0, "pts": pts_out}
+    log["mop"] = {"points": len(pts_out), "steps": len(grid), "filled": sum(1 for p in pts_out for v in p[2] if v >= 0)}
+except Exception as e:
+    log["mop_error"] = repr(e)
+print("nearshore waves:", log.get("mop"), log.get("mop_error"))
+
 # ------------------------------------------------------------------ NWS marine and surf warnings
 MARINE = {"Small Craft Advisory", "Gale Warning", "Gale Watch", "Storm Warning", "Storm Watch", "Hazardous Seas Warning",
           "Hazardous Seas Watch", "Hurricane Force Wind Warning", "Dense Fog Advisory", "Special Marine Warning",
@@ -322,7 +380,7 @@ for (blon, blat), ratios in bias_obs.items():
     bias.append([round(blon, 2), round(blat, 2), round(math.exp(math.log(r) * n / (n + 3)), 2), n])
 
 out = {"updated": now.isoformat(timespec="minutes"), "sat": sat, "sat_source": sat_meta, "points": points,
-       "reports": reports, "bias": bias, "alerts": alerts, "zones": zones, "log": log}
+       "reports": reports, "bias": bias, "alerts": alerts, "zones": zones, "mop": mop, "log": log}
 if not sat and not log["points_with_waves"]:
     print("No usable data this run; keeping previous file")
     sys.exit(0)

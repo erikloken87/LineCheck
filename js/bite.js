@@ -90,7 +90,7 @@ const Bite = (() => {
     // Warnings cover a whole county's coast, so where this particular spot is sheltered (by your own marking, or
     // because the coastline blocks most of the swell) the score is capped at Fair with a caution instead of forced to Poor.
     const shore = id === "surfperch" || id === "halibut" || id === "crab";
-    const calm = e.prot || (e.sh != null && e.sh <= 0.45 && h != null && h < 1.5);
+    const calm = e.prot || (e.sh != null && e.sh <= 0.5 && e.hr != null && e.hr < 1.2);   // under about 4 ft actually reaching the spot
     const soft = e.prot ? "you marked this spot as protected, so it may still be fishable. Look before you go" : "most of the swell is blocked at this spot, so it may still be fishable. Look before you go";
     let cap = 100;
     const caution = text => { cap = 60; why.push({ up: false, w: 9, text }); };

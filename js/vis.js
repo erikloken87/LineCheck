@@ -92,6 +92,11 @@ const Vis = (() => {
     return { station: t.name, dist: s.d, level: lvl, rising, next: next.map(e => ({ high: e.high, ft: e.level * FT, time: e.time })), prev };
   }
 
+  // nearshore wave height (m) from the Scripps model at grid step j, or null
+  function mopAt(lon, lat) {
+    const M = st.cond?.mop, hit = M && nearest(M.pts, lon, lat, p => [p[0], p[1]], 2.5);
+    return j => { if (!hit) return null; const v = hit.it[2][j - M.j0]; return v == null || v < 0 ? null : v / 10; };
+  }
   function predictor(lon, lat) {
     const s = nearest(st.tides, lon, lat, t => [t.lon, t.lat], 80);
     if (!s || !window.TidePredictor) return null;
@@ -119,8 +124,11 @@ const Vis = (() => {
     const pt = nearest(st.cond?.points, lon, lat, p => [p.lon, p.lat], 20);
     if (!pt || !pt.it.wh) return null;
     const p = pt.it, t0 = +new Date(p.t0 + "Z"), open = exposure(lon, lat), prot = isProtected(lon, lat);
-    const tr = j => prot ? 0.15 : trans(open, p.wdir?.[j], p.wp?.[j]);
-    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, prot, sh: tr(j), hn: w == null ? null : w * tr(j) * pf(p.wp?.[j]),
+    const mopH = mopAt(lon, lat);
+    // share of the offshore swell that reaches the spot: Scripps' nearshore wave model where it has a point within 2.5 km,
+    // otherwise the estimate from the coastline's shape
+    const tr = j => { if (prot) return 0.15; const m = mopH(j); return m != null && p.wh[j] ? Math.min(1.2, m / p.wh[j]) : trans(open, p.wdir?.[j], p.wp?.[j]); };
+    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, prot, sh: tr(j), modeled: !prot && mopH(j) != null, hr: w == null ? null : w * tr(j), hn: w == null ? null : w * tr(j) * pf(p.wp?.[j]),
       per: p.wp?.[j], wind: p.ws?.[j], wdir: p.wd?.[j], sst: p.sst?.[j], cloud: p.cc?.[j] }));
   }
 
@@ -178,9 +186,11 @@ const Vis = (() => {
       const p = pt.it, t0 = new Date(p.t0 + "Z"), n = (p.wh || []).length;
       const open = exposure(lon, lat, opt.coarse), prot = isProtected(lon, lat);
       const tr = (dir, per) => prot ? 0.15 : trans(open, dir, per);   // a spot you marked as protected gets very little swell
+      const mopH = mopAt(lon, lat);
       const nowI = Math.max(0, Math.min(n - 1, Math.floor((Date.now() - t0) / H3)));
       // swell that actually reaches the spot: offshore height x sheltering x period effect
-      const near = j => p.wh?.[j] == null ? null : p.wh[j] * tr(p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]);
+      const near = j => { if (p.wh?.[j] == null) return null; const m = prot ? null : mopH(j);
+        return (m != null ? m : p.wh[j] * tr(p.wdir?.[j], p.wp?.[j])) * pf(p.wp?.[j]); };
       // swell memory: the biggest swell of the last 3 days, fading with a ~30 h settling time
       const heff = i => { let m = null;
         for (let j = Math.max(0, i - 24); j <= i; j++) { const v = near(j); if (v == null) continue; const x = v * Math.exp(-(i - j) * 3 / 30); if (m == null || x > m) m = x; }
@@ -192,7 +202,8 @@ const Vis = (() => {
         h = c ? sum / c : null; idx = Math.min(n - 1, a + 4);
       }
       hOff = p.wh?.[idx]; period = p.wp?.[idx]; sdir = p.wdir?.[idx]; wind = p.ws?.[idx]; sst = p.sst?.[idx];
-      shelter = tr(sdir, period);
+      const mNow = prot ? null : mopH(idx);
+      shelter = mNow != null && hOff ? Math.min(1, mNow / hOff) : tr(sdir, period);
       if (prot) why.push("you marked this spot as protected from swell");
       const nowNear = near(idx);
       settling = h != null && nowNear != null && h >= 1.5 && h > nowNear * 1.25;

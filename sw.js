@@ -1,6 +1,6 @@
 /* Offline support: app shell + data precached; data refreshed in the background; map tiles cached as viewed. */
-const VERSION = "lc-v4";
-const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/geo.js", "manifest.webmanifest",
+const VERSION = "lc-v5";
+const SHELL = ["./", "index.html", "css/app.css?v=5", "js/app.js?v=5", "js/geo.js?v=5", "manifest.webmanifest",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/marker-icon.png",
   "vendor/leaflet/images/marker-icon-2x.png", "vendor/leaflet/images/marker-shadow.png", "vendor/leaflet/images/layers.png",
   "icons/icon-192.png", "icons/icon-512.png"];
@@ -62,11 +62,11 @@ self.addEventListener("fetch", e => {
     })());
     return;
   }
-  // shell: network first (so updates arrive), cache fallback offline
+  // shell: network first, skipping the browser's HTTP cache so updates show up right away
   e.respondWith((async () => {
     const c = await caches.open(VERSION);
     try {
-      const r = await fetch(e.request);
+      const r = await fetch(e.request.mode === "navigate" ? e.request : new Request(e.request.url, { cache: "no-cache" }));
       if (r.ok) c.put(e.request, r.clone());
       return r;
     } catch (_) {

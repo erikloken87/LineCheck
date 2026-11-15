@@ -382,5 +382,5 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   initMap();
   renderRules(); renderId(); renderInfo();
   startGps();
-  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => { });
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => r.update()).catch(() => { });
 })();

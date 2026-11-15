@@ -1,31 +1,30 @@
 {
- "fetched_at": "2026-11-15T18:26:11.481328Z",
+ "fetched_at": "2026-11-15T18:36:08.062077Z",
  "datasets": {
   "mpa": {
    "code": "ds582",
    "candidates": [
     [
+     "California Marine Protected Areas [ds582]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
+    ],
+    [
+     "California Marine Protected Areas [ds582]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
+    ],
+    [
      "California_Marine_Protected_Areas_[ds582]",
      "Feature Service",
      "https://services1.arcgis.com/0j6vZbECadDEXdAS/arcgis/rest/services/California_Marine_Protected_Areas_[ds582]/FeatureServer"
-    ],
-    [
-     "California Marine Protected Areas [ds582]",
-     "Feature Service",
-     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
-    ],
-    [
-     "California Marine Protected Areas [ds582]",
-     "Feature Service",
-     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
     ]
    ],
-   "title": "California_Marine_Protected_Areas_[ds582]",
-   "item_id": "da1b200471924f11b17878a8e435f93c",
-   "layer": "https://services1.arcgis.com/0j6vZbECadDEXdAS/arcgis/rest/services/California_Marine_Protected_Areas_[ds582]/FeatureServer/0",
-   "layer_name": "California_Marine_Protected_Areas_[ds582]",
+   "title": "California Marine Protected Areas [ds582]",
+   "item_id": "553deacdb6b746f49b1df524de9c6e9c",
+   "layer": "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer/0",
+   "layer_name": "California Marine Protected Areas [ds582]",
    "fields": [
-    "FID",
     "OBJECTID",
     "NAME",
     "CCR",
@@ -37,17 +36,13 @@
     "SHORTNAME",
     "Acres",
     "Hectares",
-    "Shape__Are",
-    "Shape__Len",
     "Shape__Area",
-    "Shape__Length",
-    "sq_miles"
+    "Shape__Length"
    ],
    "count": 155,
-   "modified": 1782170420000,
+   "modified": 1733806514000,
    "sample": [
     {
-     "FID": 1,
      "OBJECTID": 1,
      "NAME": "Pyramid Point SMCA",
      "CCR": "Section 632 (b) (1)",
@@ -59,14 +54,10 @@
      "SHORTNAME": "Pyramid Point",
      "Acres": 8955.91152252,
      "Hectares": 3624.32880634,
-     "Shape__Are": 65634640.4609375,
-     "Shape__Len": 36841.2099563691,
-     "Shape__Area": 65634640.4375,
-     "Shape__Length": 36841.209956365026,
-     "sq_miles": 13.993801712817403
+     "Shape__Area": 65634640.4609375,
+     "Shape__Length": 36841.209956369086
     },
     {
-     "FID": 2,
      "OBJECTID": 2,
      "NAME": "Point St. George Reef Offshore SMCA",
      "CCR": "Section 632 (b) (2)",
@@ -78,14 +69,10 @@
      "SHORTNAME": "Point St. George Reef Offshore",
      "Acres": 6094.8979773,
      "Hectares": 2466.51770233,
-     "Shape__Are": 44473990.09375,
-     "Shape__Len": 25879.5816741591,
      "Shape__Area": 44473990.09375,
-     "Shape__Length": 25879.581674162717,
-     "sq_miles": 9.523359408311231
+     "Shape__Length": 25879.581674159122
     },
     {
-     "FID": 3,
      "OBJECTID": 3,
      "NAME": "Southwest Seal Rock Special Closure",
      "CCR": "Section 632 (b) (3)",
@@ -97,11 +84,8 @@
      "SHORTNAME": "Southwest Seal Rock",
      "Acres": 14.3007388637,
      "Hectares": 5.78730369155,
-     "Shape__Are": 104261.203125,
-     "Shape__Len": 1638.29610790956,
-     "Shape__Area": 104261.2421875,
-     "Shape__Length": 1638.2961079071756,
-     "sq_miles": 0.02234481843916899
+     "Shape__Area": 104261.203125,
+     "Shape__Length": 1638.29610790956
     }
    ]
   },
@@ -300,6 +284,146 @@
   "Fishing_Ocean_Regulations_Salmon": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Salmon",
    "bytes": 33470
+  },
+  "photo_yelloweye": {
+   "url": "https://www.fisheries.noaa.gov/species/yelloweye-rockfish",
+   "bytes": 207241,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/yelloweye_rockfish.jpg"
+  },
+  "photo_cowcod": {
+   "url": "https://www.fisheries.noaa.gov/species/cowcod",
+   "error": "fetch failed"
+  },
+  "photo_quillback": {
+   "url": "https://www.fisheries.noaa.gov/species/quillback-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_bronzespotted": {
+   "url": "https://www.fisheries.noaa.gov/species/bronzespotted-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_blue": {
+   "url": "https://www.fisheries.noaa.gov/species/blue-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_deacon": {
+   "url": "https://www.fisheries.noaa.gov/species/deacon-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_black": {
+   "url": "https://www.fisheries.noaa.gov/species/black-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_gopher": {
+   "url": "https://www.fisheries.noaa.gov/species/gopher-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_bly": {
+   "url": "https://www.fisheries.noaa.gov/species/black-and-yellow-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_kelp": {
+   "url": "https://www.fisheries.noaa.gov/species/kelp-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_grass": {
+   "url": "https://www.fisheries.noaa.gov/species/grass-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_china": {
+   "url": "https://www.fisheries.noaa.gov/species/china-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_copper": {
+   "url": "https://www.fisheries.noaa.gov/species/copper-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_olive": {
+   "url": "https://www.fisheries.noaa.gov/species/olive-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_yellowtail": {
+   "url": "https://www.fisheries.noaa.gov/species/yellowtail-rockfish",
+   "bytes": 181478,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/yellowtail-rockfish-noaa-cbnms.jpg"
+  },
+  "photo_vermilion": {
+   "url": "https://www.fisheries.noaa.gov/species/vermilion-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_canary": {
+   "url": "https://www.fisheries.noaa.gov/species/canary-rockfish",
+   "bytes": 191056,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/canary-rockfish-noaa-750x500.jpg"
+  },
+  "photo_bocaccio": {
+   "url": "https://www.fisheries.noaa.gov/species/bocaccio",
+   "bytes": 194598,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/750x500-bocaccio_73_cm_edit.jpg"
+  },
+  "photo_starry": {
+   "url": "https://www.fisheries.noaa.gov/species/starry-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_brown": {
+   "url": "https://www.fisheries.noaa.gov/species/brown-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_treefish": {
+   "url": "https://www.fisheries.noaa.gov/species/treefish",
+   "error": "fetch failed"
+  },
+  "photo_lingcod": {
+   "url": "https://www.fisheries.noaa.gov/species/lingcod",
+   "bytes": 174554,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/900x600-lingcod-noaa.jpg"
+  },
+  "photo_cabezon": {
+   "url": "https://www.fisheries.noaa.gov/species/cabezon",
+   "error": "fetch failed"
+  },
+  "photo_kelpgreenling": {
+   "url": "https://www.fisheries.noaa.gov/species/kelp-greenling",
+   "error": "fetch failed"
+  },
+  "photo_calhalibut": {
+   "url": "https://www.fisheries.noaa.gov/species/california-halibut",
+   "error": "fetch failed"
+  },
+  "photo_pachalibut": {
+   "url": "https://www.fisheries.noaa.gov/species/pacific-halibut",
+   "bytes": 194537,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/900x600-pacific-halibut-noaa.jpg"
+  },
+  "photo_sanddab": {
+   "url": "https://www.fisheries.noaa.gov/species/pacific-sanddab",
+   "error": "fetch failed"
+  },
+  "photo_sheephead": {
+   "url": "https://www.fisheries.noaa.gov/species/california-sheephead",
+   "error": "fetch failed"
+  },
+  "photo_whiteseabass": {
+   "url": "https://www.fisheries.noaa.gov/species/white-seabass",
+   "error": "fetch failed"
+  },
+  "photo_dungeness": {
+   "url": "https://www.fisheries.noaa.gov/species/dungeness-crab",
+   "error": "fetch failed"
+  },
+  "photo_petrale": {
+   "url": "https://www.fisheries.noaa.gov/species/petrale-sole",
+   "bytes": 176035,
+   "image": "https://www.fisheries.noaa.gov/themes/custom/noaa_components/images/open-graph.jpg"
+  },
+  "photo_chilipepper": {
+   "url": "https://www.fisheries.noaa.gov/species/chilipepper-rockfish",
+   "error": "fetch failed"
+  },
+  "photo_widow": {
+   "url": "https://www.fisheries.noaa.gov/species/widow-rockfish",
+   "bytes": 178075,
+   "image": "https://www.fisheries.noaa.gov/s3/dam-migration/school-of-widow-rockfish-swfsc-fed.jpg"
   }
  }
 }

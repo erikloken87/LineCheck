@@ -1,86 +1,134 @@
 {
  "Fishing_Ocean_Regulations_Fishing-Map_Central": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_Central.html",
-  "sha256": "b46d23aaec613e1f6f5e77798c8919f9d85f57b8beffb3ecabdd70f2ddd706e1",
+  "sha256": "e17a3caf270453e50c1f4e0bc523a2a540d90022909c9c404c5cb79f8ccd5e2a",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Central"
  },
  "Fishing_Ocean_Regulations_Fishing-Map_Mendocino": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_Mendocino.html",
-  "sha256": "859b11184e64646fffbd790df90107c2a5eb38af96f0f8fa7ff0ff46797e77a9",
+  "sha256": "846ee6214a2b03801c7f5ba0c1bca2f20483c6ba52a6b2597f67bec7d86a6e2f",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Mendocino"
  },
  "Fishing_Ocean_Regulations_Fishing-Map_Northern": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_Northern.html",
-  "sha256": "fcb3d9bc12649f03fc7c66fff217b1f1b7f4aa879a9d3f8fb5861d6caaf1a6a7",
+  "sha256": "2a9576515ad72e8396cf519c0043871268eb4dd3f79fd4e16636af1121b202ca",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Northern"
  },
  "Fishing_Ocean_Regulations_Fishing-Map_SF-Bay": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_SF-Bay.html",
-  "sha256": "2ea0fee2746dd8244e2671d5f7a1f9ae61f62f1f62e21f703f94390d5e2f1386",
+  "sha256": "01250a74cc6d4de386dc9c29e09234bb4ffb4dcf2db363e6fcec2cf792294779",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/SF-Bay"
  },
  "Fishing_Ocean_Regulations_Fishing-Map_San-Francisco": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_San-Francisco.html",
-  "sha256": "6111e4213878d9ac8ffb0f403b4f75738af6f28c9a6e7449fd2ecb0146fb8c39",
+  "sha256": "da3e698b131c5d545fd476594c3078c157c80ac4acdf1f98a3c8b2a4d7a8a893",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/San-Francisco"
  },
  "Fishing_Ocean_Regulations_Fishing-Map_Southern": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Fishing-Map_Southern.html",
-  "sha256": "43ed98d92b0e7a179d4e754fb9947b452398f13d99f3ef65247871a6091ea3a9",
+  "sha256": "0eecff80cd37c2dd42043aab1d28249cde2b0b1cca1578227f75eb175c08ef24",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Southern"
  },
  "Fishing_Ocean_Regulations_Groundfish-Summary": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Groundfish-Summary.html",
-  "sha256": "0901c2153a2ece5239a50d773a1f3d0469ac9c52bb00010adb4e291951c93da3",
+  "sha256": "1f969d4899324fb2513cfade75c8b737bdda3dd7988b84a468c99976a50b9dde",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary"
  },
  "Fishing_Ocean_Regulations_Inseason": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Inseason.html",
-  "sha256": "36ec0c7a0e4d3c2cebbfe6539fbfb21c4ee2628719a10a309ec18fdd621985a4",
+  "sha256": "ce80c2f744dc9b3e848032ecd018f6522849244dbc3ffbbb6a68f06404fabc5d",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason"
  },
  "Fishing_Ocean_Regulations_Salmon": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/Fishing_Ocean_Regulations_Salmon.html",
-  "sha256": "fdb68713d174d31eb5d2646c400badb85e6fd846ea46ccd95833c155fb5c8954",
+  "sha256": "9352c5deb6d50fd45ad5f1126b2486001c4ba80481d345b3c4d5624146d8f2ce",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Salmon"
  },
  "ccr-632": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/ccr-632.html",
   "sha256": "49ce9595c8934879eb7f60e69e0d7d91d8ee7f760c1dab3f7a012fcd759e65af",
   "url": "https://www.law.cornell.edu/regulations/california/14-CCR-632"
  },
  "groundfish-summary": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/groundfish-summary.html",
-  "sha256": "409da2e4cc1a23c4b86cefbbf929d78af19ea43c4007cc9e573d88cb8373e1b1",
+  "sha256": "9ac0656bf95f2cea519d747a96b8ef5e4dc30eee23b329193c7b989563edf457",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary"
  },
  "inseason": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/inseason.html",
-  "sha256": "c18f3c8f9bfb764d490eb506f325c83d2e36fada37434f5748e157bfe9c68bd1",
+  "sha256": "740864605a05a8206a07264600a532d8fc0b841c66c7267ccfde64a021ff72ed",
   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason"
  },
  "mpa-network": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/mpa-network.html",
-  "sha256": "bc4964af5b43e1a07ac0070c5a6f693ac837898596408c5d49f0252ddef2c9de",
+  "sha256": "75f03f2b4b8cbd33e04877aaf9bfa5a688d90bb2988cf5c0c2954eb902d8426a",
   "url": "https://wildlife.ca.gov/Conservation/Marine/MPAs/Network"
  },
  "ocean-index": {
-  "fetched_at": "2026-11-15T18:26:11.481328Z",
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
   "file": "raw/pages/ocean-index.html",
-  "sha256": "73ced05e29881bbdbdd4dc466b088a6c46d5420af5ac70da295eb21bf183be86",
+  "sha256": "fc82eb9265f981d6e5dcd55350d94bc8a188890146f0741943090cbdb354e3d9",
   "url": "https://wildlife.ca.gov/Fishing/Ocean"
+ },
+ "photo_bocaccio": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_bocaccio.html",
+  "sha256": "3ca4ad3425005afdc2ede3a7309dbc1bf70b33066de7e8e6c776b7e8f21c32e6",
+  "url": "https://www.fisheries.noaa.gov/species/bocaccio"
+ },
+ "photo_canary": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_canary.html",
+  "sha256": "166d9f4dc303ce01f0630d2f92fa14df52198e8171cf3c732ccd76c33856398c",
+  "url": "https://www.fisheries.noaa.gov/species/canary-rockfish"
+ },
+ "photo_lingcod": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_lingcod.html",
+  "sha256": "636e93f0c9f6f98a9a3498f9f923ed7c93fc91820351420bff060c153decf886",
+  "url": "https://www.fisheries.noaa.gov/species/lingcod"
+ },
+ "photo_pachalibut": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_pachalibut.html",
+  "sha256": "c2f33fdfbe8fc0e20b6df88d690107efab1e85b4df1ce78038ebe5656bb0cf2e",
+  "url": "https://www.fisheries.noaa.gov/species/pacific-halibut"
+ },
+ "photo_petrale": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_petrale.html",
+  "sha256": "6d86c6e372e6f1c42c7bf6d8803b8695e7c5b14b44bb69e2eee5e727fa3b8599",
+  "url": "https://www.fisheries.noaa.gov/species/petrale-sole"
+ },
+ "photo_widow": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_widow.html",
+  "sha256": "ac845f065e766daac492cf746642a323f5226953aa59429deaff19eb988b6716",
+  "url": "https://www.fisheries.noaa.gov/species/widow-rockfish"
+ },
+ "photo_yelloweye": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_yelloweye.html",
+  "sha256": "6fcf41a24e709f9a62f74f49d62814aabcd9ebac85bb98b89f93fe62601e3f42",
+  "url": "https://www.fisheries.noaa.gov/species/yelloweye-rockfish"
+ },
+ "photo_yellowtail": {
+  "fetched_at": "2026-11-15T18:36:08.062077Z",
+  "file": "raw/pages/photo_yellowtail.html",
+  "sha256": "dacc7b50110e755b35e232bb602a33512335bcb2f7664ad524988e92eefb26a9",
+  "url": "https://www.fisheries.noaa.gov/species/yellowtail-rockfish"
  }
 }

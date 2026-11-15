@@ -1,276 +1,74 @@
 {
- "errors": [],
- "files": 46491,
- "sample": [
-  "B0001_ecmwf_fc.nc",
-  "B0001_forecast.nc",
-  "B0001_hindcast.nc",
-  "B0001_nowcast.nc",
-  "B0002_ecmwf_fc.nc",
-  "B0002_forecast.nc",
-  "B0002_hindcast.nc",
-  "B0002_nowcast.nc",
-  "B0003_ecmwf_fc.nc",
-  "B0003_forecast.nc",
-  "B0003_hindcast.nc",
-  "B0003_nowcast.nc"
+ "errors": [
+  "400 ip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc.ascii?waveHs[0:400:2000][79]",
+  "400 dip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc.ascii?waveHs[0:400:2000][11]",
+  "400 dip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore/socal_alongshore_forecast.nc.ascii?waveHs[0:400:2000][79]",
+  "400 cdip.ucsd.edu/thredds/dodsC/cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc.ascii?waveHs[0:400:2000][11]"
  ],
- "kinds": [
-  [
-   "ecmwf_fc.nc",
-   11703
-  ],
-  [
-   "forecast.nc",
-   11594
-  ],
-  [
-   "hindcast.nc",
-   11594
-  ],
-  [
-   "nowcast.nc",
-   11594
-  ],
-  [
-   "norcal_alongshore_ecmwf_fc.nc",
-   1
-  ],
-  [
-   "norcal_alongshore_forecast.nc",
-   1
-  ],
-  [
-   "norcal_alongshore_nowcast.nc",
-   1
-  ],
-  [
-   "socal_alongshore_ecmwf_fc.nc",
-   1
-  ]
+ "agg": [
+  "norcal_alongshore_ecmwf_fc.nc",
+  "norcal_alongshore_forecast.nc",
+  "norcal_alongshore_nowcast.nc",
+  "socal_alongshore_ecmwf_fc.nc",
+  "socal_alongshore_forecast.nc",
+  "socal_alongshore_nowcast.nc"
  ],
- "prefixes": [
-  [
-   "B",
-   7152
-  ],
-  [
-   "D",
-   4840
-  ],
-  [
-   "L",
-   4740
-  ],
-  [
-   "M",
-   4212
-  ],
-  [
-   "HU",
-   3984
-  ],
-  [
-   "MO",
-   3684
-  ],
-  [
-   "SL",
-   3008
-  ],
-  [
-   "VE",
-   2712
-  ],
-  [
-   "OC",
-   2672
-  ],
-  [
-   "MA",
-   2372
-  ],
-  [
-   "SN",
-   2052
-  ],
-  [
-   "SM",
-   1788
-  ],
-  [
-   "DN",
-   1492
-  ],
-  [
-   "SC",
-   1312
-  ],
-  [
-   "SF",
-   356
-  ],
-  [
-   "F",
-   81
-  ],
-  [
-   "SP",
-   28
-  ],
-  [
-   null,
-   6
-  ]
- ],
- "sl_nowcast": 752,
- "dds": "Dataset {\n    Int32 waveTime[waveTime = 14254];\n    Int32 waveTimeBounds[waveTime = 14254][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 14254];\n    Byte waveFlagSecondary[waveTime = 14254];\n    Float32 waveHs[waveTime = 14254];\n    Float32 waveTp[waveTime = 14254];\n    Float32 waveTa[waveTime = 14254];\n    Float32 waveDp[waveTime = 14254];\n    String waveModelInputSource[waveTime = 14254];\n    Float32 waveDm[waveTime = 14254];\n    Float32 waveSxy[waveTime = 14254];\n    Float32 waveSxx[waveTime = 14254];\n    Float32 waveFrequency[waveFrequency = 20];\n    Float32 waveFrequencyBounds[waveFrequency = 20][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 20];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 20];\n    Float32 waveBandwidth[waveFrequency = 20];\n    Grid {\n     ARRAY:\n        Float32 waveEnergyDensity[waveTime = 14254][waveFrequency = 20];\n     MAPS:\n        Int32 waveTime[waveTime = 14254];\n        Float32 waveFrequency[waveFrequency = 20];\n    } waveEnergyDensity;\n    Grid {\n     ARRAY:\n        Float32 waveMeanDirection[waveTime = 14254][waveFrequency = 20];\n     MAPS:\n        Int32 waveTime[waveTime = 14254];\n        Float32 waveFrequency[waveFrequency = 20];\n    } waveMeanDirection;\n    Grid {\n     ARRAY:\n        Float32 waveA1Value[waveTime = 14254][waveFrequency = 20];\n     MAPS:\n        Int32 waveTime[waveTime = 14254];\n        Float32 waveFrequency[waveFrequency = 20];\n    } waveA1Value;\n    Grid {\n     ARRAY:\n        Floa",
- "raw_latlon": "Dataset {\n    Float32 metaLatitude;\n    Float32 metaLongitude;\n} cdip/model/MOP_alongshore/SL001_nowcast.nc;\n---------------------------------------------\nmetaLatitude, 34.98027\nmetaLongitude, -120.66068\n",
- "sampled_points": 63,
- "lat_range": [
-  34.98027,
-  35.78283
- ],
- "targets": {
-  "Avila Pier": {
-   "file": "SL145_nowcast.nc",
-   "lat": 35.16448,
-   "lon": -120.73693,
-   "km_away": 0.9,
-   "waveTime": [
-    1794769200.0,
-    1794772800.0,
-    1794776400.0
-   ],
-   "waveHs": [
-    1.4117837,
-    1.3910027,
-    1.3849858
-   ],
-   "waveTp": [
-    15.384616,
-    15.384616,
-    15.384616
-   ],
-   "waveDp": [
-    209.66954,
-    209.55083,
-    209.59537
-   ],
-   "raw": "Dataset {\n    Int32 waveTime[waveTime = 3];\n    Float32 waveHs[waveTime = 3];\n    Float32 waveTp[waveTime = 3];\n    Float32 waveDp[waveTime = 3];\n} cdip/model/MOP_alongshore/SL145_nowcast.nc;\n---------------------------------------------\nwaveTime[3]\n1794769200, 1794772800, 1794776400\n\nwaveHs[3]\n1.4117837, 1.3910027, 1.3849858\n\nwaveTp[3]\n15.384616, 15.384616, 15.384616\n\nwaveDp[3]\n209.66954, 209.550",
-   "forecast_steps": 80
-  },
-  "Port San Luis harbor": {
-   "file": "SL157_nowcast.nc",
-   "lat": 35.16397,
-   "lon": -120.7386,
-   "km_away": 1.4,
-   "waveTime": [
-    1794769200.0,
-    1794772800.0,
-    1794776400.0
-   ],
-   "waveHs": [
-    1.4701408,
-    1.4598962,
-    1.4462718
-   ],
-   "waveTp": [
-    14.285714,
-    14.285714,
-    15.384616
-   ],
-   "waveDp": [
-    208.91748,
-    208.87752,
-    208.05176
-   ],
-   "raw": "Dataset {\n    Int32 waveTime[waveTime = 3];\n    Float32 waveHs[waveTime = 3];\n    Float32 waveTp[waveTime = 3];\n    Float32 waveDp[waveTime = 3];\n} cdip/model/MOP_alongshore/SL157_nowcast.nc;\n---------------------------------------------\nwaveTime[3]\n1794769200, 1794772800, 1794776400\n\nwaveHs[3]\n1.4701408, 1.4598962, 1.4462718\n\nwaveTp[3]\n14.285714, 14.285714, 15.384616\n\nwaveDp[3]\n208.91748, 208.877",
-   "forecast_steps": 80
-  },
-  "Pismo Beach": {
-   "file": "SL097_nowcast.nc",
-   "lat": 35.13593,
-   "lon": -120.6609,
-   "km_away": 1.2,
-   "waveTime": [
-    1794769200.0,
-    1794772800.0,
-    1794776400.0
-   ],
-   "waveHs": [
-    1.8956227,
-    1.8801249,
-    1.8485026
-   ],
-   "waveTp": [
-    14.285714,
-    15.384616,
-    15.384616
-   ],
-   "waveDp": [
-    242.62154,
-    241.5882,
-    241.6708
-   ],
-   "raw": "Dataset {\n    Int32 waveTime[waveTime = 3];\n    Float32 waveHs[waveTime = 3];\n    Float32 waveTp[waveTime = 3];\n    Float32 waveDp[waveTime = 3];\n} cdip/model/MOP_alongshore/SL097_nowcast.nc;\n---------------------------------------------\nwaveTime[3]\n1794769200, 1794772800, 1794776400\n\nwaveHs[3]\n1.8956227, 1.8801249, 1.8485026\n\nwaveTp[3]\n14.285714, 15.384616, 15.384616\n\nwaveDp[3]\n242.62154, 241.588",
-   "forecast_steps": 80
-  },
-  "Pecho Rock": {
-   "file": "SL205_nowcast.nc",
-   "lat": 35.18436,
-   "lon": -120.82796,
-   "km_away": 1.2,
-   "waveTime": [
-    1794769200.0,
-    1794772800.0,
-    1794776400.0
-   ],
-   "waveHs": [
-    3.718924,
-    3.5261607,
-    3.4907415
-   ],
-   "waveTp": [
-    15.384616,
-    15.384616,
-    15.384616
-   ],
-   "waveDp": [
-    261.50974,
-    260.86508,
-    260.4682
-   ],
-   "raw": "Dataset {\n    Int32 waveTime[waveTime = 3];\n    Float32 waveHs[waveTime = 3];\n    Float32 waveTp[waveTime = 3];\n    Float32 waveDp[waveTime = 3];\n} cdip/model/MOP_alongshore/SL205_nowcast.nc;\n---------------------------------------------\nwaveTime[3]\n1794769200, 1794772800, 1794776400\n\nwaveHs[3]\n3.718924, 3.5261607, 3.4907415\n\nwaveTp[3]\n15.384616, 15.384616, 15.384616\n\nwaveDp[3]\n261.50974, 260.8650",
-   "forecast_steps": 80
-  },
-  "Montana de Oro": {
-   "file": "SL277_nowcast.nc",
-   "lat": 35.26415,
-   "lon": -120.90599,
-   "km_away": 0.8,
-   "waveTime": [
-    1794769200.0,
-    1794772800.0,
-    1794776400.0
-   ],
-   "waveHs": [
-    3.2437158,
-    3.155748,
-    3.1731033
-   ],
-   "waveTp": [
-    15.384616,
-    15.384616,
-    15.384616
-   ],
-   "waveDp": [
-    279.7571,
-    280.09918,
-    280.9184
-   ],
-   "raw": "Dataset {\n    Int32 waveTime[waveTime = 3];\n    Float32 waveHs[waveTime = 3];\n    Float32 waveTp[waveTime = 3];\n    Float32 waveDp[waveTime = 3];\n} cdip/model/MOP_alongshore/SL277_nowcast.nc;\n---------------------------------------------\nwaveTime[3]\n1794769200, 1794772800, 1794776400\n\nwaveHs[3]\n3.2437158, 3.155748, 3.1731033\n\nwaveTp[3]\n15.384616, 15.384616, 15.384616\n\nwaveDp[3]\n279.7571, 280.09918",
-   "forecast_steps": 80
-  }
- }
+ "norcal_alongshore_ecmwf_fc.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 80];\n    Int32 waveTimeBounds[waveTime = 80][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 80][siteCount = 6065];\n    Byte waveFlagSecondary[waveTime = 80][siteCount = 6065];\n    Float32 waveHs[waveTime = 80][siteCount = 6065];\n    Float32 waveTp[waveTime = 80][siteCount = 6065];\n    Float32 waveDp[waveTime = 80][siteCount = 6065];\n    Float32 waveTa[waveTime = 80][siteCount = 6065];\n    String waveModelInputSource[waveTime = 80][siteCount = 6065];\n    Float32 waveDm[waveTime = 80][siteCount = 6065];\n    Float32 waveSxy[waveTime = 80][siteCount = 6065];\n    Float32 waveSxx[waveTime = 80][siteCount = 6065];\n    Float32 waveFrequency[waveFrequency = 28];\n    Float32 waveFrequencyBounds[waveFrequency = 28][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 28];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 28];\n    Float32 waveBandwidth[waveFrequency = 28];\n    Float32 waveEnergyDensity[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveMeanDirection[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveA1Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveB1Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveA2Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveB2Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveModelBinInputCoverage[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 metaLatitude[siteCount = 6065];\n    Float32 metaLongitude[siteCount = 6065];\n    Float32 metaWaterDepth[siteCount = 6065];\n    Float32 metaShoreNormal[siteCount = 6065];\n    String metaSiteLabel[siteCount = 6065];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/norcal_alongshore_ecmwf_fc.nc;\n",
+ "norcal_alongshore_forecast.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 80];\n    Int32 waveTimeBounds[waveTime = 80][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 80][siteCount = 6065];\n    Byte waveFlagSecondary[waveTime = 80][siteCount = 6065];\n    Float32 waveHs[waveTime = 80][siteCount = 6065];\n    Float32 waveTp[waveTime = 80][siteCount = 6065];\n    Float32 waveDp[waveTime = 80][siteCount = 6065];\n    Float32 waveTa[waveTime = 80][siteCount = 6065];\n    String waveModelInputSource[waveTime = 80][siteCount = 6065];\n    Float32 waveDm[waveTime = 80][siteCount = 6065];\n    Float32 waveSxy[waveTime = 80][siteCount = 6065];\n    Float32 waveSxx[waveTime = 80][siteCount = 6065];\n    Float32 waveFrequency[waveFrequency = 28];\n    Float32 waveFrequencyBounds[waveFrequency = 28][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 28];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 28];\n    Float32 waveBandwidth[waveFrequency = 28];\n    Float32 waveEnergyDensity[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveMeanDirection[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveA1Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveB1Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveA2Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveB2Value[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 waveModelBinInputCoverage[waveTime = 80][waveFrequency = 28][siteCount = 6065];\n    Float32 metaLatitude[siteCount = 6065];\n    Float32 metaLongitude[siteCount = 6065];\n    Float32 metaWaterDepth[siteCount = 6065];\n    Float32 metaShoreNormal[siteCount = 6065];\n    String metaSiteLabel[siteCount = 6065];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n",
+ "norcal_alongshore_nowcast.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 12];\n    Int32 waveTimeBounds[waveTime = 12][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 12][siteCount = 6065];\n    Byte waveFlagSecondary[waveTime = 12][siteCount = 6065];\n    Float32 waveHs[waveTime = 12][siteCount = 6065];\n    Float32 waveTp[waveTime = 12][siteCount = 6065];\n    Float32 waveDp[waveTime = 12][siteCount = 6065];\n    Float32 waveTa[waveTime = 12][siteCount = 6065];\n    String waveModelInputSource[waveTime = 12][siteCount = 6065];\n    Float32 waveDm[waveTime = 12][siteCount = 6065];\n    Float32 waveSxy[waveTime = 12][siteCount = 6065];\n    Float32 waveSxx[waveTime = 12][siteCount = 6065];\n    Float32 waveFrequency[waveFrequency = 20];\n    Float32 waveFrequencyBounds[waveFrequency = 20][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 20];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 20];\n    Float32 waveBandwidth[waveFrequency = 20];\n    Float32 waveEnergyDensity[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveMeanDirection[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveA1Value[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveB1Value[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveA2Value[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveB2Value[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 waveModelBinInputCoverage[waveTime = 12][waveFrequency = 20][siteCount = 6065];\n    Float32 metaLatitude[siteCount = 6065];\n    Float32 metaLongitude[siteCount = 6065];\n    Float32 metaWaterDepth[siteCount = 6065];\n    Float32 metaShoreNormal[siteCount = 6065];\n    String metaSiteLabel[siteCount = 6065];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n",
+ "socal_alongshore_ecmwf_fc.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 80];\n    Int32 waveTimeBounds[waveTime = 80][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 80][siteCount = 5529];\n    Byte waveFlagSecondary[waveTime = 80][siteCount = 5529];\n    Float32 waveHs[waveTime = 80][siteCount = 5529];\n    Float32 waveTp[waveTime = 80][siteCount = 5529];\n    Float32 waveDp[waveTime = 80][siteCount = 5529];\n    Float32 waveTa[waveTime = 80][siteCount = 5529];\n    String waveModelInputSource[waveTime = 80][siteCount = 5529];\n    Float32 waveDm[waveTime = 80][siteCount = 5529];\n    Float32 waveSxy[waveTime = 80][siteCount = 5529];\n    Float32 waveSxx[waveTime = 80][siteCount = 5529];\n    Float32 waveFrequency[waveFrequency = 28];\n    Float32 waveFrequencyBounds[waveFrequency = 28][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 28];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 28];\n    Float32 waveBandwidth[waveFrequency = 28];\n    Float32 waveEnergyDensity[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveMeanDirection[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveA1Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveB1Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveA2Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveB2Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveModelBinInputCoverage[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 metaLatitude[siteCount = 5529];\n    Float32 metaLongitude[siteCount = 5529];\n    Float32 metaWaterDepth[siteCount = 5529];\n    Float32 metaShoreNormal[siteCount = 5529];\n    String metaSiteLabel[siteCount = 5529];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/socal_alongshore_ecmwf_fc.nc;\n",
+ "socal_alongshore_forecast.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 80];\n    Int32 waveTimeBounds[waveTime = 80][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 80][siteCount = 5529];\n    Byte waveFlagSecondary[waveTime = 80][siteCount = 5529];\n    Float32 waveHs[waveTime = 80][siteCount = 5529];\n    Float32 waveTp[waveTime = 80][siteCount = 5529];\n    Float32 waveDp[waveTime = 80][siteCount = 5529];\n    Float32 waveTa[waveTime = 80][siteCount = 5529];\n    String waveModelInputSource[waveTime = 80][siteCount = 5529];\n    Float32 waveDm[waveTime = 80][siteCount = 5529];\n    Float32 waveSxy[waveTime = 80][siteCount = 5529];\n    Float32 waveSxx[waveTime = 80][siteCount = 5529];\n    Float32 waveFrequency[waveFrequency = 28];\n    Float32 waveFrequencyBounds[waveFrequency = 28][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 28];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 28];\n    Float32 waveBandwidth[waveFrequency = 28];\n    Float32 waveEnergyDensity[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveMeanDirection[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveA1Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveB1Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveA2Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveB2Value[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 waveModelBinInputCoverage[waveTime = 80][waveFrequency = 28][siteCount = 5529];\n    Float32 metaLatitude[siteCount = 5529];\n    Float32 metaLongitude[siteCount = 5529];\n    Float32 metaWaterDepth[siteCount = 5529];\n    Float32 metaShoreNormal[siteCount = 5529];\n    String metaSiteLabel[siteCount = 5529];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n",
+ "socal_alongshore_nowcast.nc.dds": "Dataset {\n    Int32 waveTime[waveTime = 12];\n    Int32 waveTimeBounds[waveTime = 12][metaBoundsCount = 2];\n    Byte waveFlagPrimary[waveTime = 12][siteCount = 5529];\n    Byte waveFlagSecondary[waveTime = 12][siteCount = 5529];\n    Float32 waveHs[waveTime = 12][siteCount = 5529];\n    Float32 waveTp[waveTime = 12][siteCount = 5529];\n    Float32 waveDp[waveTime = 12][siteCount = 5529];\n    Float32 waveTa[waveTime = 12][siteCount = 5529];\n    String waveModelInputSource[waveTime = 12][siteCount = 5529];\n    Float32 waveDm[waveTime = 12][siteCount = 5529];\n    Float32 waveSxy[waveTime = 12][siteCount = 5529];\n    Float32 waveSxx[waveTime = 12][siteCount = 5529];\n    Float32 waveFrequency[waveFrequency = 20];\n    Float32 waveFrequencyBounds[waveFrequency = 20][metaBoundsCount = 2];\n    Byte waveFrequencyFlagPrimary[waveFrequency = 20];\n    Byte waveFrequencyFlagSecondary[waveFrequency = 20];\n    Float32 waveBandwidth[waveFrequency = 20];\n    Float32 waveEnergyDensity[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveMeanDirection[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveA1Value[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveB1Value[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveA2Value[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveB2Value[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 waveModelBinInputCoverage[waveTime = 12][waveFrequency = 20][siteCount = 5529];\n    Float32 metaLatitude[siteCount = 5529];\n    Float32 metaLongitude[siteCount = 5529];\n    Float32 metaWaterDepth[siteCount = 5529];\n    Float32 metaShoreNormal[siteCount = 5529];\n    String metaSiteLabel[siteCount = 5529];\n    String metaGridMapping;\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n",
+ "norcal_alongshore_forecast.nc.dims": {
+  "waveTime": "80",
+  "metaBoundsCount": "2",
+  "siteCount": "6065",
+  "waveFrequency": "28"
+ },
+ "norcal_alongshore_forecast.nc.das": "Attributes {\n    waveTime {\n        String long_name \"UTC prediction time\";\n        String standard_name \"time\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        String calendar \"standard\";\n        String axis \"T\";\n        String coverage_content_type \"coordinate\";\n        UInt32 _ChunkSizes 1024;\n    }\n    waveTimeBounds {\n        String long_name \"time cell bounds\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        UInt32 _ChunkSizes 1, 2;\n    }\n    waveFlagPrimary {\n        String _Unsigned \"false\";\n        String long_name \"primary wave QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 1;\n        Byte valid_max 9;\n        Byte flag_values 1, 2, 3, 4, 9;\n        String flag_meanings \"good not_evaluated questionable bad missing\";\n        String reference \"Ocean Data Standards, UNESCO 2013 - IOC Manuals and Guides, 54, Volume 3 Version 1\";\n        String ancillary_variables \"waveFlagSecondary\";\n        UInt32 _ChunkSizes 1, 6065;\n    }\n    waveFlagSecondary {\n        String _Unsigned \"false\";\n        String long_name \"secondary model QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 0;\n        Byte valid_max 2;\n        Byte flag_values 0, 1, 2;\n        String flag_meanings \"unspecified insufficient_input low_energy\";\n        String reference \"http://cdip.ucsd.edu/documentation\";\n        UInt32 _ChunkSizes 1, 6065;\n    }\n    waveHs {\n        String long_name \"significant wave height\";\n        String units \"meter\";\n        Float32 _FillValue -999.99;\n        String standard_name \"sea_surface_wave_significant_height\";\n        String coordinates \"metaLatitude metaLongitude\";\n        String grid_mapping \"metaGridMapping\";\n        Float32 valid_min 0.0;\n        Float32 valid_max 20.0;\n        String ancilla",
+ "norcal_alongshore_forecast.nc waveTime[78:1:79]": "Dataset {\n    Int32 waveTime[waveTime = 2];\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n---------------------------------------------\nwaveTime[2]\n1795284000, 1795294800\n\n",
+ "norcal_alongshore_forecast.nc metaLatitude[0:400:2000]": "Dataset {\n    Float32 metaLatitude[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n---------------------------------------------\nmetaLatitude[6]\n34.98027, 35.43385, 35.85313, 36.30615, 36.72673, 37.10123\n\n",
+ "norcal_alongshore_forecast.nc metaLongitude[0:400:2000]": "Dataset {\n    Float32 metaLongitude[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n---------------------------------------------\nmetaLongitude[6]\n-120.66068, -120.91185, -121.41824, -121.90502, -121.81783, -122.29775\n\n",
+ "norcal_alongshore_forecast.nc metaSiteLabel[0:400:2000]": "Dataset {\n    String metaSiteLabel[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n---------------------------------------------\nmetaSiteLabel[6]\n\"SL001\", \"SL401\", \"MO049\", \"MO449\", \"MO849\", \"SC328\"\n\n",
+ "norcal_alongshore_forecast.nc waveHs[79][0:400:2000]": "Dataset {\n    Float32 waveHs[waveTime = 1][siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_forecast.nc;\n---------------------------------------------\nwaveHs[1][6]\n[0], 1.3267287, 0.747005, 1.0214828, 1.5916953, 1.0524194, 1.624691\n\n",
+ "norcal_alongshore_forecast.nc waveHs[0:400:2000][79]": null,
+ "norcal_alongshore_nowcast.nc.dims": {
+  "waveTime": "12",
+  "metaBoundsCount": "2",
+  "siteCount": "6065",
+  "waveFrequency": "20"
+ },
+ "norcal_alongshore_nowcast.nc.das": "Attributes {\n    waveTime {\n        String long_name \"UTC prediction time\";\n        String standard_name \"time\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        String calendar \"standard\";\n        String axis \"T\";\n        String coverage_content_type \"coordinate\";\n        UInt32 _ChunkSizes 1024;\n    }\n    waveTimeBounds {\n        String long_name \"time cell bounds\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        UInt32 _ChunkSizes 1, 2;\n    }\n    waveFlagPrimary {\n        String _Unsigned \"false\";\n        String long_name \"primary wave QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 1;\n        Byte valid_max 9;\n        Byte flag_values 1, 2, 3, 4, 9;\n        String flag_meanings \"good not_evaluated questionable bad missing\";\n        String reference \"Ocean Data Standards, UNESCO 2013 - IOC Manuals and Guides, 54, Volume 3 Version 1\";\n        String ancillary_variables \"waveFlagSecondary\";\n        UInt32 _ChunkSizes 1, 6065;\n    }\n    waveFlagSecondary {\n        String _Unsigned \"false\";\n        String long_name \"secondary model QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 0;\n        Byte valid_max 2;\n        Byte flag_values 0, 1, 2;\n        String flag_meanings \"unspecified insufficient_input low_energy\";\n        String reference \"http://cdip.ucsd.edu/documentation\";\n        UInt32 _ChunkSizes 1, 6065;\n    }\n    waveHs {\n        String long_name \"significant wave height\";\n        String units \"meter\";\n        Float32 _FillValue -999.99;\n        String standard_name \"sea_surface_wave_significant_height\";\n        String coordinates \"metaLatitude metaLongitude\";\n        String grid_mapping \"metaGridMapping\";\n        Float32 valid_min 0.0;\n        Float32 valid_max 20.0;\n        String ancilla",
+ "norcal_alongshore_nowcast.nc waveTime[10:1:11]": "Dataset {\n    Int32 waveTime[waveTime = 2];\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n---------------------------------------------\nwaveTime[2]\n1794776400, 1794780000\n\n",
+ "norcal_alongshore_nowcast.nc metaLatitude[0:400:2000]": "Dataset {\n    Float32 metaLatitude[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaLatitude[6]\n34.98027, 35.43385, 35.85313, 36.30615, 36.72673, 37.10123\n\n",
+ "norcal_alongshore_nowcast.nc metaLongitude[0:400:2000]": "Dataset {\n    Float32 metaLongitude[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaLongitude[6]\n-120.66068, -120.91185, -121.41824, -121.90502, -121.81783, -122.29775\n\n",
+ "norcal_alongshore_nowcast.nc metaSiteLabel[0:400:2000]": "Dataset {\n    String metaSiteLabel[siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaSiteLabel[6]\n\"SL001\", \"SL401\", \"MO049\", \"MO449\", \"MO849\", \"SC328\"\n\n",
+ "norcal_alongshore_nowcast.nc waveHs[11][0:400:2000]": "Dataset {\n    Float32 waveHs[waveTime = 1][siteCount = 6];\n} cdip/model/MOP_alongshore/norcal_alongshore_nowcast.nc;\n---------------------------------------------\nwaveHs[1][6]\n[0], 3.1319482, 2.0525994, 2.6723826, 3.7584376, 3.0687754, 2.4255397\n\n",
+ "norcal_alongshore_nowcast.nc waveHs[0:400:2000][11]": null,
+ "socal_alongshore_forecast.nc.dims": {
+  "waveTime": "80",
+  "metaBoundsCount": "2",
+  "siteCount": "5529",
+  "waveFrequency": "28"
+ },
+ "socal_alongshore_forecast.nc.das": "Attributes {\n    waveTime {\n        String long_name \"UTC prediction time\";\n        String standard_name \"time\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        String calendar \"standard\";\n        String axis \"T\";\n        String coverage_content_type \"coordinate\";\n        UInt32 _ChunkSizes 1024;\n    }\n    waveTimeBounds {\n        String long_name \"time cell bounds\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        UInt32 _ChunkSizes 1, 2;\n    }\n    waveFlagPrimary {\n        String _Unsigned \"false\";\n        String long_name \"primary wave QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 1;\n        Byte valid_max 9;\n        Byte flag_values 1, 2, 3, 4, 9;\n        String flag_meanings \"good not_evaluated questionable bad missing\";\n        String reference \"Ocean Data Standards, UNESCO 2013 - IOC Manuals and Guides, 54, Volume 3 Version 1\";\n        String ancillary_variables \"waveFlagSecondary\";\n        UInt32 _ChunkSizes 1, 5529;\n    }\n    waveFlagSecondary {\n        String _Unsigned \"false\";\n        String long_name \"secondary model QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 0;\n        Byte valid_max 2;\n        Byte flag_values 0, 1, 2;\n        String flag_meanings \"unspecified insufficient_input low_energy\";\n        String reference \"http://cdip.ucsd.edu/documentation\";\n        UInt32 _ChunkSizes 1, 5529;\n    }\n    waveHs {\n        String long_name \"significant wave height\";\n        String units \"meter\";\n        Float32 _FillValue -999.99;\n        String standard_name \"sea_surface_wave_significant_height\";\n        String coordinates \"metaLatitude metaLongitude\";\n        String grid_mapping \"metaGridMapping\";\n        Float32 valid_min 0.0;\n        Float32 valid_max 20.0;\n        String ancilla",
+ "socal_alongshore_forecast.nc waveTime[78:1:79]": "Dataset {\n    Int32 waveTime[waveTime = 2];\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n---------------------------------------------\nwaveTime[2]\n1795284000, 1795294800\n\n",
+ "socal_alongshore_forecast.nc metaLatitude[0:400:2000]": "Dataset {\n    Float32 metaLatitude[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n---------------------------------------------\nmetaLatitude[6]\n32.53426, 32.79063, 33.11302, 33.37461, 33.59386, 33.72166\n\n",
+ "socal_alongshore_forecast.nc metaLongitude[0:400:2000]": "Dataset {\n    Float32 metaLongitude[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n---------------------------------------------\nmetaLongitude[6]\n-117.12917, -117.2654, -117.33137, -117.5907, -117.89462, -118.19389\n\n",
+ "socal_alongshore_forecast.nc metaSiteLabel[0:400:2000]": "Dataset {\n    String metaSiteLabel[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n---------------------------------------------\nmetaSiteLabel[6]\n\"D0001\", \"D0401\", \"D0801\", \"D1201\", \"OC391\", \"L0123\"\n\n",
+ "socal_alongshore_forecast.nc waveHs[79][0:400:2000]": "Dataset {\n    Float32 waveHs[waveTime = 1][siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_forecast.nc;\n---------------------------------------------\nwaveHs[1][6]\n[0], 0.60446453, 0.5485548, 0.4669183, 0.5507814, 0.56620026, 0.5779024\n\n",
+ "socal_alongshore_forecast.nc waveHs[0:400:2000][79]": null,
+ "socal_alongshore_nowcast.nc.dims": {
+  "waveTime": "12",
+  "metaBoundsCount": "2",
+  "siteCount": "5529",
+  "waveFrequency": "20"
+ },
+ "socal_alongshore_nowcast.nc.das": "Attributes {\n    waveTime {\n        String long_name \"UTC prediction time\";\n        String standard_name \"time\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        String calendar \"standard\";\n        String axis \"T\";\n        String coverage_content_type \"coordinate\";\n        UInt32 _ChunkSizes 1024;\n    }\n    waveTimeBounds {\n        String long_name \"time cell bounds\";\n        String units \"seconds since 1970-01-01 00:00:00 UTC\";\n        UInt32 _ChunkSizes 1, 2;\n    }\n    waveFlagPrimary {\n        String _Unsigned \"false\";\n        String long_name \"primary wave QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 1;\n        Byte valid_max 9;\n        Byte flag_values 1, 2, 3, 4, 9;\n        String flag_meanings \"good not_evaluated questionable bad missing\";\n        String reference \"Ocean Data Standards, UNESCO 2013 - IOC Manuals and Guides, 54, Volume 3 Version 1\";\n        String ancillary_variables \"waveFlagSecondary\";\n        UInt32 _ChunkSizes 1, 5529;\n    }\n    waveFlagSecondary {\n        String _Unsigned \"false\";\n        String long_name \"secondary model QC flag\";\n        Int16 _FillValue -127;\n        Byte valid_min 0;\n        Byte valid_max 2;\n        Byte flag_values 0, 1, 2;\n        String flag_meanings \"unspecified insufficient_input low_energy\";\n        String reference \"http://cdip.ucsd.edu/documentation\";\n        UInt32 _ChunkSizes 1, 5529;\n    }\n    waveHs {\n        String long_name \"significant wave height\";\n        String units \"meter\";\n        Float32 _FillValue -999.99;\n        String standard_name \"sea_surface_wave_significant_height\";\n        String coordinates \"metaLatitude metaLongitude\";\n        String grid_mapping \"metaGridMapping\";\n        Float32 valid_min 0.0;\n        Float32 valid_max 20.0;\n        String ancilla",
+ "socal_alongshore_nowcast.nc waveTime[10:1:11]": "Dataset {\n    Int32 waveTime[waveTime = 2];\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n---------------------------------------------\nwaveTime[2]\n1794776400, 1794780000\n\n",
+ "socal_alongshore_nowcast.nc metaLatitude[0:400:2000]": "Dataset {\n    Float32 metaLatitude[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaLatitude[6]\n32.53426, 32.79063, 33.11302, 33.37461, 33.59386, 33.72166\n\n",
+ "socal_alongshore_nowcast.nc metaLongitude[0:400:2000]": "Dataset {\n    Float32 metaLongitude[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaLongitude[6]\n-117.12917, -117.2654, -117.33137, -117.5907, -117.89462, -118.19389\n\n",
+ "socal_alongshore_nowcast.nc metaSiteLabel[0:400:2000]": "Dataset {\n    String metaSiteLabel[siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n---------------------------------------------\nmetaSiteLabel[6]\n\"D0001\", \"D0401\", \"D0801\", \"D1201\", \"OC391\", \"L0123\"\n\n",
+ "socal_alongshore_nowcast.nc waveHs[11][0:400:2000]": "Dataset {\n    Float32 waveHs[waveTime = 1][siteCount = 6];\n} cdip/model/MOP_alongshore/socal_alongshore_nowcast.nc;\n---------------------------------------------\nwaveHs[1][6]\n[0], 2.2316246, 1.6894884, 1.3666149, 1.4000952, 0.91869634, 1.0274148\n\n",
+ "socal_alongshore_nowcast.nc waveHs[0:400:2000][11]": null
 }

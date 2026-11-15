@@ -1,12 +1,72 @@
 /* Rough underwater visibility estimate, tides, saved spots and public diver reports. */
 const Vis = (() => {
   const FT = 3.28084, H3 = 3 * 3600e3;
-  const st = { cond: null, tides: null, cfg: null, predictors: {} };
+  const st = { cond: null, tides: null, cfg: null, predictors: {}, coast: [], expo: {} };
   const km = (aLon, aLat, bLon, bLat) => Math.hypot((aLon - bLon) * 111.32 * Math.cos(aLat * Math.PI / 180), (aLat - bLat) * 110.57);
   const LS = { get(k, d) { try { return JSON.parse(localStorage.getItem("lc_" + k)) ?? d; } catch { return d; } },
                set(k, v) { try { localStorage.setItem("lc_" + k, JSON.stringify(v)); } catch { } } };
 
-  function init(cond, tides, cfg) { st.cond = cond; st.tides = tides; st.cfg = cfg; flushQueue(); }
+  function init(cond, tides, cfg, coast) {
+    st.cond = cond; st.tides = tides; st.cfg = cfg;
+    const polys = !coast ? [] : coast.type === "Polygon" ? [coast.coordinates] : coast.coordinates;
+    st.coast = polys.map(p => { const r = p[0]; let b = [Infinity, Infinity, -Infinity, -Infinity];
+      for (const c of r) { if (c[0] < b[0]) b[0] = c[0]; if (c[1] < b[1]) b[1] = c[1]; if (c[0] > b[2]) b[2] = c[0]; if (c[1] > b[3]) b[3] = c[1]; }
+      return { r, b }; });
+    flushQueue();
+  }
+
+  // ---------------------------------------------------------------- swell sheltering from the coastline shape
+  function inLand(x, y) {
+    for (const { r, b } of st.coast) {
+      if (x < b[0] || x > b[2] || y < b[1] || y > b[3]) continue;
+      let ins = false;
+      for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+        const xi = r[i][0], yi = r[i][1], xj = r[j][0], yj = r[j][1];
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins;
+      }
+      if (ins) return true;
+    }
+    return false;
+  }
+  // For each compass bin: 1 if open ocean lies that way, 0 if land (headland, island) blocks it within 80 km.
+  function exposure(lon, lat, coarse) {
+    const key = `${lon.toFixed(3)},${lat.toFixed(3)},${coarse ? 1 : 0}`;
+    if (st.expo[key]) return st.expo[key];
+    if (!st.coast.length) return null;
+    const bins = coarse ? 18 : 36, step = coarse ? 3 : 1.5, max = coarse ? 60 : 80, out = [];
+    const kx = 111.32 * Math.cos(lat * Math.PI / 180);
+    for (let b = 0; b < bins; b++) {
+      const br = b * (360 / bins) * Math.PI / 180; let open = 1;
+      for (let d = 1.5; d <= max; d += step) {
+        if (inLand(lon + d * Math.sin(br) / kx, lat + d * Math.cos(br) / 110.57)) { open = 0; break; }
+      }
+      out.push(open);
+    }
+    return (st.expo[key] = out);
+  }
+  // Share of swell from direction `dir` (degrees it comes from) that reaches the spot. Never zero: swell wraps around points.
+  function trans(open, dir) {
+    if (!open || dir == null) return 1;
+    const n = open.length, w0 = 360 / n; let s = 0, t = 0;
+    for (let b = 0; b < n; b++) {
+      let d = Math.abs(b * w0 - dir) % 360; if (d > 180) d = 360 - d;
+      if (d > 50) continue;
+      const w = Math.cos(d * Math.PI / 120) ** 2; s += w * open[b]; t += w;
+    }
+    return 0.2 + 0.8 * (t ? s / t : 1);
+  }
+  const pf = T => T == null ? 1 : Math.max(0.75, Math.min(1.3, Math.sqrt(T / 10)));   // long-period swell reaches deeper
+  const compass = d => ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(d / 45) % 8];
+
+  // ---------------------------------------------------------------- what past reports say about this spot vs the model
+  function shrink(r, n) { return Math.exp(Math.log(Math.max(0.5, Math.min(2, r))) * n / (n + 3)); }
+  function biasAt(lon, lat) {
+    const cell = nearest(st.cond?.bias, lon, lat, c => [c[0], c[1]], 3);
+    if (cell) return { r: cell.it[2], n: cell.it[3] };
+    const mine = LS.get("myreports", []).filter(r => r.m > 0 && km(lon, lat, r.lon, r.lat) <= 3 && (Date.now() - new Date(r.t)) < 180 * 864e5);
+    if (!mine.length) return null;
+    return { r: shrink(median(mine.map(r => r.vis / r.m)), mine.length), n: mine.length };
+  }
 
   function median(a) { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; }
   function nearest(list, lon, lat, getLL, maxKm) {
@@ -57,7 +117,7 @@ const Vis = (() => {
     return a.length ? a[a.length - 1].v : null;
   }
 
-  function estimate(lon, lat, dayOffset = 0) {
+  function estimate(lon, lat, dayOffset = 0, opt = {}) {
     const C = st.cond;
     if (!C) return null;
     const why = [];
@@ -80,22 +140,32 @@ const Vis = (() => {
       else why.push(`satellite clarity from ${Math.round(age)} days ago`);
     } else { base = 12; conf -= 1; why.push("no recent satellite reading nearby (fog or too close to shore)"); }
 
-    let h = null, wind = null, sst = null, t0 = null, idx = 0;
+    let h = null, hOff = null, wind = null, sst = null, period = null, sdir = null, idx = 0, shelter = 1, settling = false;
     if (pt) {
-      const p = pt.it; t0 = new Date(p.t0 + "Z");
-      if (dayOffset === 0) {
-        idx = Math.max(0, Math.min((p.wh || []).length - 1, Math.floor((Date.now() - t0) / H3)));
-        h = p.wh?.[idx]; wind = p.ws?.[idx]; sst = p.sst?.[idx];
-      } else {
-        const from = Math.max(0, Math.floor((Date.now() - t0) / H3) + dayOffset * 8 - 2), to = from + 8;
-        const sl = a => (a || []).slice(from, to).filter(v => v != null);
-        h = sl(p.wh).length ? Math.max(...sl(p.wh)) : null; wind = sl(p.ws).length ? Math.max(...sl(p.ws)) : null;
-        sst = sl(p.sst)[0] ?? null;
+      const p = pt.it, t0 = new Date(p.t0 + "Z"), n = (p.wh || []).length;
+      const open = exposure(lon, lat, opt.coarse);
+      const nowI = Math.max(0, Math.min(n - 1, Math.floor((Date.now() - t0) / H3)));
+      // swell that actually reaches the spot: offshore height x sheltering x period effect
+      const near = j => p.wh?.[j] == null ? null : p.wh[j] * trans(open, p.wdir?.[j]) * pf(p.wp?.[j]);
+      // swell memory: the biggest swell of the last 3 days, fading with a ~30 h settling time
+      const heff = i => { let m = null;
+        for (let j = Math.max(0, i - 24); j <= i; j++) { const v = near(j); if (v == null) continue; const x = v * Math.exp(-(i - j) * 3 / 30); if (m == null || x > m) m = x; }
+        return m; };
+      if (dayOffset === 0) { idx = nowI; h = n ? heff(idx) : null; }
+      else {
+        const a = Math.min(n - 1, nowI + dayOffset * 8 - 2), b = Math.min(n - 1, a + 8); let sum = 0, c = 0;
+        for (let i = a; i <= b; i++) { const v = heff(i); if (v != null) { sum += v; c++; } }
+        h = c ? sum / c : null; idx = Math.min(n - 1, a + 4);
       }
+      hOff = p.wh?.[idx]; period = p.wp?.[idx]; sdir = p.wdir?.[idx]; wind = p.ws?.[idx]; sst = p.sst?.[idx];
+      shelter = trans(open, sdir);
+      const nowNear = near(idx);
+      settling = h != null && nowNear != null && h >= 1.5 && h > nowNear * 1.25;
     }
     let est = base * swellFactor(h) * windFactor(wind);
-    if (h != null && h >= 2) why.push(`${(h * FT).toFixed(0)} ft swell stirring things up`);
-    else if (h != null) why.push(`small swell (${(h * FT).toFixed(0)} ft)`);
+    if (h != null) why.push(h >= 2 ? "heavy swell stirring up the bottom" : h >= 1 ? "moderate swell reaching this spot" : "little swell reaching this spot");
+    if (shelter < 0.6 && hOff >= 1.5 && sdir != null) why.push(`partly sheltered from the ${compass(sdir)} swell`);
+    if (settling) why.push("still settling after bigger swell in the last 3 days");
     if (wind != null && wind > 15) why.push(`windy (${Math.round(wind)} kt)`);
     if (dayOffset === 0 && pt) {
       const r = pt.it.rain72;
@@ -106,6 +176,13 @@ const Vis = (() => {
     if (dayOffset === 0) {
       tide = tideAt(lon, lat);
       if (tide?.rising && tide.next[0] && (tide.next[0].time - Date.now()) < 2 * 3600e3) { est *= 1.1; why.push("incoming high tide"); }
+    }
+    const raw = est;                      // the model's own answer, before any diver input
+    const bias = biasAt(lon, lat);
+    if (bias && Math.abs(bias.r - 1) > 0.07) {
+      est *= bias.r;
+      why.push(`this spot usually runs ${bias.r > 1 ? "clearer" : "murkier"} than the satellite suggests (${bias.n} past report${bias.n > 1 ? "s" : ""})`);
+      if (bias.n >= 3) conf += 1;
     }
     let rep = null;
     if (dayOffset === 0) {
@@ -122,7 +199,7 @@ const Vis = (() => {
     est = Math.max(2, Math.min(80, est));
     conf = Math.max(0, Math.min(3, conf));
     return { ft: est, lo: Math.max(1, Math.round(est * 0.7 / 5) * 5 || Math.round(est * 0.7)), hi: Math.max(5, Math.round(est * 1.3 / 5) * 5),
-             rating: rating(est), conf: conf <= 1 ? "low" : conf === 2 ? "medium" : "high", why, swell: h, period: pt?.it.wp?.[idx],
+             rating: rating(est), conf: conf <= 1 ? "low" : conf === 2 ? "medium" : "high", why, raw, swell: hOff, period, swellDir: sdir, shelter,
              wind, windDir: pt?.it.wd?.[idx], sst, rain: pt?.it.rain72, tide, rep, updated: C.updated };
   }
 
@@ -135,12 +212,12 @@ const Vis = (() => {
   // ---------------------------------------------------------------- reports
   const todayKey = () => new Date().toISOString().slice(0, 10);
   function reportsLeftToday() { const c = LS.get("rcount", {}); return Math.max(0, 4 - (c[todayKey()] || 0)); }
-  async function submitReport({ lat, lon, vis, temp, act }) {
+  async function submitReport({ lat, lon, vis, temp, act, m }) {
     if (!(vis >= 1 && vis <= 100)) throw new Error("Visibility must be between 1 and 100 ft");
     if (reportsLeftToday() <= 0) throw new Error("That's the limit of 4 reports for today");
     const rep = { lat: Math.round(lat * 100) / 100, lon: Math.round(lon * 100) / 100, vis: Math.round(vis),
                   temp: temp >= 40 && temp <= 85 ? Math.round(temp) : null, act: ["dive", "snorkel", "surface"].includes(act) ? act : "",
-                  t: new Date().toISOString().slice(0, 16) + "Z" };
+                  t: new Date().toISOString().slice(0, 16) + "Z", m: m > 0 ? Math.round(m) : null };
     const mine = LS.get("myreports", []); mine.push(rep); LS.set("myreports", mine.slice(-50));
     const c = LS.get("rcount", {}); c[todayKey()] = (c[todayKey()] || 0) + 1; LS.set("rcount", { [todayKey()]: c[todayKey()] });
     const q = LS.get("queue", []); q.push(rep); LS.set("queue", q);
@@ -159,6 +236,7 @@ const Vis = (() => {
       if (r.temp != null) body.set(e.water_temp_f, r.temp);
       if (r.act) body.set(e.activity, r.act);
       body.set(e.observed_at, r.t);
+      if (r.m != null && e.model_ft) body.set(e.model_ft, r.m);
       try { await fetch(cfg.form_action, { method: "POST", mode: "no-cors", body }); } catch { left.push(r); }
     }
     LS.set("queue", left);

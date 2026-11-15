@@ -173,9 +173,12 @@ for i in range(0, len(PTS), B):
     chunk = PTS[i:i + B]
     lat = ",".join(str(p[1]) for p in chunk)
     lon = ",".join(str(p[0]) for p in chunk)
-    m = get("https://marine-api.open-meteo.com/v1/marine", params={
-        "latitude": lat, "longitude": lon, "hourly": "wave_height,wave_period,sea_surface_temperature",
-        "forecast_days": 3, "timezone": "UTC", "cell_selection": "sea"})
+    mp = {"latitude": lat, "longitude": lon, "hourly": "wave_height,wave_period,wave_direction,sea_surface_temperature",
+          "past_days": 3, "forecast_days": 3, "timezone": "UTC", "cell_selection": "sea"}
+    m = get("https://marine-api.open-meteo.com/v1/marine", params=mp)
+    if not m:   # fall back to forecast only if the past-days request is refused
+        mp.pop("past_days")
+        m = get("https://marine-api.open-meteo.com/v1/marine", params=mp)
     w = get("https://api.open-meteo.com/v1/forecast", params={
         "latitude": lat, "longitude": lon, "hourly": "wind_speed_10m,wind_direction_10m,precipitation",
         "past_days": 3, "forecast_days": 3, "wind_speed_unit": "kn", "timezone": "UTC"})
@@ -189,9 +192,11 @@ for i in range(0, len(PTS), B):
             h = mj[k]["hourly"]
             t0 = h["time"][0]
             rec["t0"] = t0
-            rec["wh"] = [h["wave_height"][j] for j in range(0, min(72, len(h["time"])), 3)]
-            rec["wp"] = [h["wave_period"][j] for j in range(0, min(72, len(h["time"])), 3)]
-            rec["sst"] = [h["sea_surface_temperature"][j] for j in range(0, min(72, len(h["time"])), 3)]
+            rng = range(0, len(h["time"]), 3)
+            rec["wh"] = [h["wave_height"][j] for j in rng]
+            rec["wp"] = [h["wave_period"][j] for j in rng]
+            rec["wdir"] = [h["wave_direction"][j] for j in rng]
+            rec["sst"] = [h["sea_surface_temperature"][j] for j in rng]
         except Exception:
             pass
         try:
@@ -202,8 +207,8 @@ for i in range(0, len(PTS), B):
             rain = [x or 0 for x in h["precipitation"][max(0, idx - 72):idx]]
             rec["rain72"] = round(sum(rain), 1)
             start = times.index(rec["t0"]) if rec.get("t0") in times else idx
-            rec["ws"] = [h["wind_speed_10m"][j] for j in range(start, min(start + 72, len(times)), 3)]
-            rec["wd"] = [h["wind_direction_10m"][j] for j in range(start, min(start + 72, len(times)), 3)]
+            rec["ws"] = [h["wind_speed_10m"][j] for j in range(start, min(start + 144, len(times)), 3)]
+            rec["wd"] = [h["wind_direction_10m"][j] for j in range(start, min(start + 144, len(times)), 3)]
             rec.setdefault("t0", times[start])
         except Exception:
             pass
@@ -214,7 +219,7 @@ log["points_with_wind"] = sum(1 for p in points if p.get("ws"))
 print("points:", len(points), log["points_with_waves"], log["points_with_wind"])
 
 # ------------------------------------------------------------------ public diver reports (Google Sheet published as CSV)
-reports = []
+reports, bias_obs = [], {}
 cfg = json.load(open(CFG_PATH)) if os.path.exists(CFG_PATH) else {}
 if cfg.get("csv_url"):
     r = get(cfg["csv_url"])
@@ -232,7 +237,7 @@ if cfg.get("csv_url"):
             if when.tzinfo is None:
                 when = when.replace(tzinfo=dt.timezone.utc)
             age_h = (now - when).total_seconds() / 3600
-            if not (1 <= vis <= 100) or not (32.4 <= lat <= 42.1 and -125.5 <= lon <= -117) or not (-1 <= age_h <= 7 * 24):
+            if not (1 <= vis <= 100) or not (32.4 <= lat <= 42.1 and -125.5 <= lon <= -117) or not (-1 <= age_h <= 180 * 24):
                 continue
             if not near_coast(lon, lat, km=8):
                 continue
@@ -248,13 +253,26 @@ if cfg.get("csv_url"):
                 pass
             act = (row.get("activity") or "").strip().lower()
             act = act if act in ("dive", "snorkel", "surface") else ""
-            reports.append({"lat": lat, "lon": lon, "vis": round(vis), "temp": temp, "act": act,
-                            "t": when.isoformat(timespec="minutes")})
+            try:   # the app's own estimate at the time, so we can learn how each spot differs from it
+                mft = float(row.get("model_ft", ""))
+                if 2 <= mft <= 100:
+                    bias_obs.setdefault((round(lon / 0.02) * 0.02, round(lat / 0.02) * 0.02), []).append(vis / mft)
+            except (ValueError, TypeError):
+                pass
+            if age_h <= 7 * 24:
+                reports.append({"lat": lat, "lon": lon, "vis": round(vis), "temp": temp, "act": act,
+                                "t": when.isoformat(timespec="minutes")})
     log["reports"] = len(reports)
 print("reports:", len(reports))
 
+bias = []
+for (blon, blat), ratios in bias_obs.items():
+    r = max(0.5, min(2.0, statistics.median(ratios)))
+    n = len(ratios)
+    bias.append([round(blon, 2), round(blat, 2), round(math.exp(math.log(r) * n / (n + 3)), 2), n])
+
 out = {"updated": now.isoformat(timespec="minutes"), "sat": sat, "sat_source": sat_meta, "points": points,
-       "reports": reports, "log": log}
+       "reports": reports, "bias": bias, "log": log}
 if not sat and not log["points_with_waves"]:
     print("No usable data this run; keeping previous file")
     sys.exit(0)

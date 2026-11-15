@@ -16,7 +16,7 @@ async function loadData() {
   }));
   for (const f of D.mpa.features) { f.bbox = Geo.bbox(f.geometry); f.rings = Geo.geomRings(f.geometry); }
   for (const f of D.exclusion?.features || []) f.rings = Geo.geomRings(f.geometry);
-  Vis.init(D.conditions, D.tide_stations, D.reports_config);
+  Vis.init(D.conditions, D.tide_stations, D.reports_config, D.coast);
 }
 
 /* ------------------------------------------------------------------ evaluation */
@@ -200,6 +200,7 @@ function initMap() {
   depthLayer = L.layerGroup().addTo(map);
   excl.addTo(map);
   L.control.layers(bases, { "MPAs": mpaLayer, "Depth lines (30–150 fm)": lines, "Groundfish exclusion areas": excl, "Visibility estimate": visLayer() }, { position: "topright" }).addTo(map);
+  map.on("overlayadd", e => { if (e.layer.fill) e.layer.fill(); });
   highlightActiveLine();
 
   const loc = L.control({ position: "bottomright" });
@@ -263,7 +264,7 @@ function renderVis(lat, lon, source) {
     <div class="vis-why">${e.rep ? `<b>Based on ${e.rep.n} diver report${e.rep.n > 1 ? "s" : ""}</b> (newest ${Math.round(e.rep.newest)} h ago, median ${Math.round(e.rep.median)} ft). ` : ""}${esc((w => w.charAt(0).toUpperCase() + w.slice(1))(e.why.join(" · ")))}.</div>
     <div class="muted">Confidence: <b>${e.conf}</b> · data updated ${ago(e.updated)}${old ? " ⚠️" : ""}</div>
     <div class="vis-grid">
-      <div><span>Swell</span><b>${e.swell != null ? (e.swell * 3.28084).toFixed(0) + " ft" : "–"}${e.period ? ` @ ${Math.round(e.period)}s` : ""}</b></div>
+      <div><span>Swell</span><b>${e.swell != null ? (e.swell * 3.28084).toFixed(0) + " ft" : "–"}${e.period ? ` @ ${Math.round(e.period)}s` : ""} ${compass8(e.swellDir)}</b></div>
       <div><span>Wind</span><b>${e.wind != null ? Math.round(e.wind) + " kt " + compass8(e.windDir) : "–"}</b></div>
       <div><span>Water</span><b>${e.sst != null ? Math.round(e.sst * 9 / 5 + 32) + "°F" : "–"}</b></div>
       <div><span>Tide</span><b>${esc(tideTxt)}</b></div>
@@ -271,7 +272,7 @@ function renderVis(lat, lon, source) {
     <div class="vis-out">${out.map((o, i) => o ? `<div><span>${dayName(i)}</span><span class="pill ${VCLS[o.rating]}">${Vis.LABEL[o.rating]}</span></div>` : "").join("")}</div>
     <div class="vis-actions">
       <button class="btn2" id="saveSpotBtn">☆ Save this spot</button>
-      ${Vis.configured() ? `<button class="btn2" id="reportBtn">Report visibility</button>` : ""}
+      <button class="btn2" id="reportBtn">Report visibility</button>
     </div>
     <div id="saveForm" hidden class="mini-form"><input id="spotName" maxlength="40" placeholder="Name, e.g. Pecho Rock"><button class="btn2 on" id="spotSave">Save</button></div>
     <div id="reportForm" hidden class="mini-form">
@@ -279,15 +280,15 @@ function renderVis(lat, lon, source) {
       <label>Water temp (optional) <input id="rTemp" type="number" inputmode="numeric" min="40" max="85" placeholder="°F"></label>
       <label>Seen while <select id="rAct"><option value="dive">Diving</option><option value="snorkel">Snorkeling</option><option value="surface">Looking from the surface</option></select></label>
       <button class="btn2 on" id="rSend">Send report</button>
-      <div class="muted" id="rMsg">Shared publicly, anonymously, with the location rounded to about 1 km. ${Vis.reportsLeftToday()} left today.</div>
+      <div class="muted" id="rMsg">${Vis.configured() ? "Shared publicly, anonymously, with the location rounded to about 1 km." : "Saved on this phone for now, and used to tune this spot's estimates. Public sharing isn't switched on yet."} ${Vis.reportsLeftToday()} left today.</div>
     </div>`;
   $("saveSpotBtn").onclick = () => { $("saveForm").hidden = !$("saveForm").hidden; $("spotName").focus(); };
   $("spotSave").onclick = () => { const n = $("spotName").value.trim(); if (!n) return; Vis.saveSpot(n, lat, lon); $("saveForm").hidden = true; renderSpots(); };
   if ($("reportBtn")) $("reportBtn").onclick = () => { $("reportForm").hidden = !$("reportForm").hidden; };
   if ($("rSend")) $("rSend").onclick = async () => {
     try {
-      await Vis.submitReport({ lat, lon, vis: +$("rVis").value, temp: $("rTemp").value ? +$("rTemp").value : null, act: $("rAct").value });
-      $("rMsg").textContent = navigator.onLine ? "Thanks! Your report is in." : "Saved; it'll send when you're back online.";
+      await Vis.submitReport({ lat, lon, vis: +$("rVis").value, temp: $("rTemp").value ? +$("rTemp").value : null, act: $("rAct").value, m: e.raw });
+      $("rMsg").textContent = !Vis.configured() ? "Saved on this phone." : navigator.onLine ? "Thanks! Your report is in." : "Saved; it'll send when you're back online.";
       setTimeout(() => renderVis(lat, lon, source), 1200);
     } catch (err) { $("rMsg").textContent = err.message; }
   };
@@ -309,11 +310,14 @@ function renderSpots() {
 
 function visLayer() {
   const g = L.layerGroup();
-  for (const p of D.conditions?.points || []) {
-    const e = Vis.estimate(p.lon, p.lat);
-    if (!e) continue;
-    L.circleMarker([p.lat, p.lon], { radius: 7, weight: 1, color: "#fff", fillColor: { low: "#d7263d", avg: "#f29e0b", high: "#1b9e5a" }[e.rating], fillOpacity: 0.9, interactive: false }).addTo(g);
-  }
+  g.fill = () => {            // built the first time the layer is switched on
+    if (g.getLayers().length) return;
+    for (const p of D.conditions?.points || []) {
+      const e = Vis.estimate(p.lon, p.lat, 0, { coarse: true });
+      if (!e) continue;
+      L.circleMarker([p.lat, p.lon], { radius: 7, weight: 1, color: "#fff", fillColor: { low: "#d7263d", avg: "#f29e0b", high: "#1b9e5a" }[e.rating], fillOpacity: 0.9, interactive: false }).addTo(g);
+    }
+  };
   return g;
 }
 

@@ -179,7 +179,7 @@ const Vis = (() => {
     }
     const raw = est;                      // the model's own answer, before any diver input
     const bias = biasAt(lon, lat);
-    if (bias && Math.abs(bias.r - 1) > 0.07) {
+    if (bias && bias.n >= 2 && Math.abs(bias.r - 1) > 0.07) {   // one report alone doesn't make a pattern
       est *= bias.r;
       why.push(`this spot usually runs ${bias.r > 1 ? "clearer" : "murkier"} than the satellite suggests (${bias.n} past report${bias.n > 1 ? "s" : ""})`);
       if (bias.n >= 3) conf += 1;

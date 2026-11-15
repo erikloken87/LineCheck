@@ -251,6 +251,7 @@ function ago(iso) { const h = (Date.now() - new Date(iso)) / 3600e3; return h < 
 
 function renderVis(lat, lon, source) {
   visAt = { lat, lon, source };
+  if ($("tab-bite").classList.contains("active") && !$("biteBody").contains(document.activeElement)) renderBite();
   const P = $("visPanel");
   if (!Vis.ready()) { P.innerHTML = `<div class="p-head"><span>Visibility estimate</span></div><p class="muted">Conditions data isn't available yet.</p>`; return; }
   const e = Vis.estimate(lon, lat);
@@ -291,6 +292,62 @@ function renderVis(lat, lon, source) {
       $("rMsg").textContent = !Vis.configured() ? "Saved on this phone." : navigator.onLine ? "Thanks! Your report is in." : "Saved; it'll send when you're back online.";
       setTimeout(() => renderVis(lat, lon, source), 1200);
     } catch (err) { $("rMsg").textContent = err.message; }
+  };
+}
+
+/* ------------------------------------------------------------------ Bite tab */
+const BLABEL = { good: "Good", fair: "Fair", poor: "Poor" };
+let biteChoice = "ok";
+function renderBite() {
+  const P = $("biteBody");
+  const at = visAt || (state.gps ? { lat: state.gps.lat, lon: state.gps.lon, source: "gps" } : null);
+  if (!at || !Vis.ready()) { P.innerHTML = `<p class="muted">Waiting for a location. Open the Here tab, or tap the map there to pick a spot.</p>`; return; }
+  const B = Bite.forecast(at.lon, at.lat);
+  if (!B) { P.innerHTML = `<p class="muted">No conditions data near this spot. Bite conditions cover the California coast out to about 12 miles.</p>`; return; }
+  const ev = evaluate(at.lat, at.lon, 0);
+  const top = ev.inside[0]?.f.properties;
+  const gfClosed = ev.gf && ev.gf.rows.every(r => r.status === "closed");
+  const crabCards = (D.regs || []).find(r => r.key === ev.region)?.cards.filter(c => c.id === "dungeness" || c.id === "rock") || [];
+  const crabNote = crabCards.some(c => c.status !== "open") ? "Crab rules have an alert or closure right now: check the Rules tab." : "";
+  const notes = { rockfish: gfClosed ? "Boat season for rockfish is closed here now (shore anglers and divers are exempt)." : "",
+                  lingcod: gfClosed ? "Boat season for lingcod is closed here now (shore anglers and divers are exempt)." : "", crab: crabNote };
+  const card = sp => {
+    const d0 = sp.days[0], cur = sp.now, show = d0 || sp.days.find(Boolean);
+    const head = cur ? Bite.rating(cur.score) : d0 ? d0.rating : null;
+    const why = (cur || show)?.why || [];
+    return `<details class="bcard">
+      <summary><span class="b-n">${esc(sp.name)} <span class="b-how">${esc(sp.how)}</span></span>
+        ${head ? `<span class="pill ${head}">${cur ? "Now: " : ""}${BLABEL[head]}</span>` : `<span class="pill">Dark now</span>`}
+        <div class="b-days">${sp.days.map(d => d ? `<div class="bd"><span>${esc(d.label)}</span><span class="pill ${d.rating}">${BLABEL[d.rating]}</span><span>${esc(d.win)}</span></div>` : "").join("")}</div>
+      </summary>
+      <div class="sec2">${cur ? "Right now" : show ? `Best window (${esc(show.label)} ${esc(show.win)})` : ""}</div>
+      <ul class="bwhy">${why.map(w => `<li class="${w.up ? "up" : "dn"}">${esc(w.text)}</li>`).join("") || "<li>Nothing unusual either way.</li>"}</ul>
+      ${notes[sp.id] ? `<p class="warn">${esc(notes[sp.id])}</p>` : ""}
+    </details>`;
+  };
+  const logs = Bite.logs();
+  P.innerHTML = `
+    <div class="bhead">Bite conditions</div>
+    <div class="bsub">${at.source === "pin" ? "For the spot you tapped on the map" : "For your location"} · times shown are the best 3-hour window each day</div>
+    ${top && top.color === "red" ? `<p class="warn">This spot is inside ${esc(top.full)}: no fishing here.</p>` : ""}
+    ${B.species.map(card).join("")}
+    <p class="muted">These are rules of thumb about tide, swell, wind, light and season. They haven't been checked against catch data yet, so treat them as "are conditions right?", not a prediction.</p>
+    <div class="panel">
+      <div class="p-head"><span>How was the bite?</span><span class="p-area">private log</span></div>
+      <div class="mini-form">
+        <select id="bSp">${Bite.SPECIES.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>
+        <div class="seg3">${[["slow", "Slow"], ["ok", "OK"], ["hot", "Hot"]].map(([k, l]) => `<button class="btn2 ${k === biteChoice ? "on" : ""}" data-b="${k}">${l}</button>`).join("")}</div>
+        <label><input type="checkbox" id="bBait" style="width:auto"> Bait or birds around</label>
+        <button class="btn2 on" id="bSave">Save to my log</button>
+        <div class="muted" id="bMsg">Stays on this phone. ${logs.length} logged so far; after about 15 I can check which rules match your results.</div>
+      </div>
+      <div class="loglist">${logs.slice(-3).reverse().map(l => `${new Date(l.t).toLocaleDateString("en-US", { month: "short", day: "numeric" })}: ${esc((Bite.SPECIES.find(s => s.id === l.sp) || {}).name || l.sp)}, ${esc(l.bite)}${l.score != null ? ` (score ${l.score})` : ""}`).join("<br>")}</div>
+    </div>`;
+  P.querySelectorAll(".seg3 button").forEach(b => b.onclick = () => { biteChoice = b.dataset.b; P.querySelectorAll(".seg3 button").forEach(x => x.classList.toggle("on", x === b)); });
+  $("bSave").onclick = () => {
+    const sp = $("bSp").value, f = B.species.find(s => s.id === sp);
+    Bite.addLog({ lat: at.lat, lon: at.lon, sp, bite: biteChoice, bait: $("bBait").checked, score: f?.now?.score ?? f?.days[0]?.score ?? null });
+    renderBite(); $("bMsg").textContent = "Saved.";
   };
 }
 
@@ -464,6 +521,7 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
   document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + b.dataset.tab));
   if (b.dataset.tab === "here") setTimeout(() => map.invalidateSize(), 50);
+  if (b.dataset.tab === "bite") renderBite();
 });
 
 (async function boot() {

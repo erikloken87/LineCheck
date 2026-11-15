@@ -1,7 +1,7 @@
 /* Rough underwater visibility estimate, tides, saved spots and public diver reports. */
 const Vis = (() => {
   const FT = 3.28084, H3 = 3 * 3600e3;
-  const st = { cond: null, tides: null, cfg: null, predictors: {}, coast: [], expo: {} };
+  const st = { cond: null, tides: null, cfg: null, predictors: {}, coast: [], expo: {}, tl: {} };
   const km = (aLon, aLat, bLon, bLat) => Math.hypot((aLon - bLon) * 111.32 * Math.cos(aLat * Math.PI / 180), (aLat - bLat) * 110.57);
   const LS = { get(k, d) { try { return JSON.parse(localStorage.getItem("lc_" + k)) ?? d; } catch { return d; } },
                set(k, v) { try { localStorage.setItem("lc_" + k, JSON.stringify(v)); } catch { } } };
@@ -89,6 +89,31 @@ const Vis = (() => {
     const lvl = p.getWaterLevelAtTime({ time: now }).level * FT;
     const rising = next[0] ? next[0].high : null;
     return { station: t.name, dist: s.d, level: lvl, rising, next: next.map(e => ({ high: e.high, ft: e.level * FT, time: e.time })), prev };
+  }
+
+  // 8 days of tide heights (ft) at 30-minute steps for the nearest station, for the bite score
+  function tideTimeline(lon, lat) {
+    const s = nearest(st.tides, lon, lat, t => [t.lon, t.lat], 80);
+    if (!s || !window.TidePredictor) return null;
+    const t = s.it;
+    if (!st.tl[t.id]) {
+      const p = st.predictors[t.id] || (st.predictors[t.id] = TidePredictor.createTidePredictor(t.hc, { offset: t.offset }));
+      const start = Math.floor((Date.now() - 4 * 864e5) / 1800e3) * 1800e3;
+      st.tl[t.id] = { start, lv: p.getTimelinePrediction({ start: new Date(start), end: new Date(start + 8 * 864e5), timeFidelity: 1800 }).map(x => x.level * FT) };
+    }
+    const T = st.tl[t.id];
+    const level = ms => { const f = (ms - T.start) / 1800e3, i = Math.floor(f); return i < 0 || i >= T.lv.length - 1 ? null : T.lv[i] + (T.lv[i + 1] - T.lv[i]) * (f - i); };
+    const range = ms => { const a = Math.max(0, Math.floor((ms - T.start) / 1800e3) - 25), sl = T.lv.slice(a, a + 50); if (sl.length < 10) return null;
+      const lo = Math.min(...sl), hi = Math.max(...sl); return { range: hi - lo, mid: (hi + lo) / 2 }; };
+    return { station: t.name, level, range };
+  }
+  // Conditions at this spot for each 3-hour step (3 days back, 3 days ahead)
+  function series(lon, lat) {
+    const pt = nearest(st.cond?.points, lon, lat, p => [p.lon, p.lat], 20);
+    if (!pt || !pt.it.wh) return null;
+    const p = pt.it, t0 = +new Date(p.t0 + "Z"), open = exposure(lon, lat);
+    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, hn: w == null ? null : w * trans(open, p.wdir?.[j]) * pf(p.wp?.[j]),
+      per: p.wp?.[j], wind: p.ws?.[j], wdir: p.wd?.[j], sst: p.sst?.[j], cloud: p.cc?.[j] }));
   }
 
   // ---------------------------------------------------------------- the estimate
@@ -243,5 +268,5 @@ const Vis = (() => {
   }
   window.addEventListener("online", flushQueue);
 
-  return { init, estimate, outlook, tideAt, spots, saveSpot, removeSpot, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
+  return { init, estimate, outlook, tideAt, tideTimeline, series, spots, saveSpot, removeSpot, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
 })();

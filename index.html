@@ -11,7 +11,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="css/app.css?v=8">
+<link rel="stylesheet" href="css/app.css?v=9">
 </head>
 <body>
 <header class="top">
@@ -58,6 +58,11 @@
     <div id="idList"></div>
   </section>
 
+  <!-- BITE -->
+  <section id="tab-bite" class="tab">
+    <div id="biteBody"></div>
+  </section>
+
   <!-- INFO -->
   <section id="tab-info" class="tab">
     <div class="info" id="infoBody"></div>
@@ -67,14 +72,17 @@
 <nav class="tabs">
   <button data-tab="here" class="on"><span class="ti">◎</span>Here</button>
   <button data-tab="rules"><span class="ti">§</span>Rules</button>
+  <button data-tab="bite"><span class="ti">🎣</span>Bite</button>
   <button data-tab="id"><span class="ti">🐟</span>Fish ID</button>
   <button data-tab="info"><span class="ti">i</span>Info</button>
 </nav>
 
 <script src="vendor/leaflet/leaflet.js"></script>
-<script src="vendor/tide-predictor.js?v=8"></script>
-<script src="js/geo.js?v=8"></script>
-<script src="js/vis.js?v=8"></script>
-<script src="js/app.js?v=8"></script>
+<script src="vendor/tide-predictor.js?v=9"></script>
+<script src="js/geo.js?v=9"></script>
+<script src="vendor/suncalc.js?v=9"></script>
+<script src="js/vis.js?v=9"></script>
+<script src="js/bite.js?v=9"></script>
+<script src="js/app.js?v=9"></script>
 </body>
 </html>

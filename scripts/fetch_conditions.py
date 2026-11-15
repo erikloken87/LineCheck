@@ -180,7 +180,7 @@ for i in range(0, len(PTS), B):
         mp.pop("past_days")
         m = get("https://marine-api.open-meteo.com/v1/marine", params=mp)
     w = get("https://api.open-meteo.com/v1/forecast", params={
-        "latitude": lat, "longitude": lon, "hourly": "wind_speed_10m,wind_direction_10m,precipitation",
+        "latitude": lat, "longitude": lon, "hourly": "wind_speed_10m,wind_direction_10m,precipitation,cloud_cover",
         "past_days": 3, "forecast_days": 3, "wind_speed_unit": "kn", "timezone": "UTC"})
     mj = m.json() if m else []
     wj = w.json() if w else []
@@ -209,6 +209,7 @@ for i in range(0, len(PTS), B):
             start = times.index(rec["t0"]) if rec.get("t0") in times else idx
             rec["ws"] = [h["wind_speed_10m"][j] for j in range(start, min(start + 144, len(times)), 3)]
             rec["wd"] = [h["wind_direction_10m"][j] for j in range(start, min(start + 144, len(times)), 3)]
+            rec["cc"] = [h["cloud_cover"][j] for j in range(start, min(start + 144, len(times)), 3)]
             rec.setdefault("t0", times[start])
         except Exception:
             pass

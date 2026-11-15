@@ -215,7 +215,7 @@ for key, page, label, south, north in REGIONS:
             break
     regions.append({"key": key, "name": page.replace("-", " ").replace("SF Bay", "SF Bay"), "label": label,
                     "south": south, "north": north, "updated": upd.group(1) if upd else None, "url": url,
-                    "notes": notes[:3], "cards": section_cards(main, url)})
+                    "notes": list(dict.fromkeys(notes))[:3], "cards": section_cards(main, url)})
 dump("regs.json", regions)
 meta["sources"]["regs"] = {r["key"]: r["updated"] for r in regions}
 
@@ -243,6 +243,7 @@ if os.path.exists(sp_out):
     pdir = os.path.join(ROOT, "raw", "photos")
     photos_dir = os.path.join(ROOT, "photos")
     os.makedirs(photos_dir, exist_ok=True)
+    COMMONS_REJECTED = set(load(os.path.join(MAN, "photo_review.json")).get("rejected", [])) if os.path.exists(os.path.join(MAN, "photo_review.json")) else set()
     commons = load(os.path.join(pdir, "commons.json")) if os.path.exists(os.path.join(pdir, "commons.json")) else {}
     spj = load(sp_out)
     used = 0
@@ -255,9 +256,11 @@ if os.path.exists(sp_out):
             if m and FED.search(m.group(1)):
                 cr = re.split(r"\.| Credit|\s(?=" + re.escape(sp["name"].split()[0]) + ")", m.group(1))[0].strip()
                 src, credit = noaa_img, cr if cr.startswith("NOAA") else cr + ", via NOAA Fisheries"
-        if not src and sp["id"] in commons and os.path.exists(os.path.join(pdir, f"c_{sp['id']}.img")):
+        # Commons picks reviewed by eye; these were wrong species or unclear credit
+        if not src and sp["id"] not in COMMONS_REJECTED and sp["id"] in commons and os.path.exists(os.path.join(pdir, f"c_{sp['id']}.img")):
             c = commons[sp["id"]]
-            src, credit = os.path.join(pdir, f"c_{sp['id']}.img"), f"{c.get('artist') or c.get('credit')}, public domain (Wikimedia Commons)"
+            who = c.get("credit") if (not c.get("artist") or c["artist"].startswith("User ") or "Unknown" in c["artist"]) else c["artist"]
+            src, credit = os.path.join(pdir, f"c_{sp['id']}.img"), f"{who.rstrip('.')}, public domain (Wikimedia Commons)"
         if src and Image:
             try:
                 im = Image.open(src).convert("RGB")

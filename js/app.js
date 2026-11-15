@@ -261,7 +261,7 @@ function renderRules() {
   if (!r) return;
   $("regsHead").innerHTML = `<div class="rh-t">${esc(r.label)}</div>
     <div class="rh-s">CDFW summary updated ${esc(r.updated || "?")} · <a href="${r.url}" target="_blank" rel="noopener">View on CDFW</a></div>
-    ${r.notes.map(n => `<div class="note">${esc(n)}</div>`).join("")}`;
+    ${[...new Set(r.notes)].map(n => `<details class="note"><summary><b>Alert:</b> ${esc(n.replace(/^NOTE:\s*/, "").slice(0, 90))}… <u>more</u></summary>${esc(n.replace(/^NOTE:\s*/, ""))}</details>`).join("")}`;
   const q = ($("regsSearch").value || "").toLowerCase();
   const cards = r.cards.filter(c => !q || (c.title + " " + c.text.join(" ")).toLowerCase().includes(q));
   const pinned = PINNED.map(id => cards.find(c => c.id === id)).filter(Boolean);

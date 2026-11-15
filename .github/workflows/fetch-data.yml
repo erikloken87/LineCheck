@@ -23,7 +23,15 @@ jobs:
         run: |
           git config user.name "linecheck-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -A data raw
+          git add -A data raw photos
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
-          git commit -m "Data refresh $(date -u +%F)"
-          git push
+          # Scheduled runs go to a review branch; Erik approves before they reach the live app.
+          # Manual runs (workflow_dispatch) publish straight to main.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            git checkout -B data-refresh
+            git commit -m "Data refresh $(date -u +%F) (pending review)"
+            git push -f origin data-refresh
+          else
+            git commit -m "Data refresh $(date -u +%F)"
+            git push
+          fi

@@ -1,5 +1,5 @@
 /* Offline support: app shell + data precached; data refreshed in the background; map tiles cached as viewed. */
-const VERSION = "lc-v1";
+const VERSION = "lc-v2";
 const SHELL = ["./", "index.html", "css/app.css", "js/app.js", "js/geo.js", "manifest.webmanifest",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/marker-icon.png",
   "vendor/leaflet/images/marker-icon-2x.png", "vendor/leaflet/images/marker-shadow.png", "vendor/leaflet/images/layers.png",

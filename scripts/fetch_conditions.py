@@ -46,80 +46,95 @@ def near_coast(lon, lat, km=6.0):
 ERDDAPS = ["https://coastwatch.pfeg.noaa.gov/erddap", "https://coastwatch.noaa.gov/erddap"]
 
 
+def ginfo(base, did):
+    r = get(f"{base}/info/{did}/index.json")
+    if not r:
+        return None
+    rows = r.json()["table"]["rows"]
+    g = {r[2]: r[4] for r in rows if r[0] == "attribute" and r[1] == "NC_GLOBAL"}
+    var = next((r[1] for r in rows if r[0] == "variable" and "kd" in r[1].lower()), None)
+    dims = [r[1] for r in rows if r[0] == "dimension"]
+    num = lambda k: float(re.findall(r"-?[\d.]+", g.get(k, "nan"))[0]) if re.findall(r"-?[\d.]+", g.get(k, "")) else None
+    return {"var": var, "dims": dims, "latmin": num("geospatial_lat_min"), "latmax": num("geospatial_lat_max"),
+            "lonmin": num("geospatial_lon_min"), "lonmax": num("geospatial_lon_max"),
+            "res": num("geospatial_lat_resolution"), "end": g.get("time_coverage_end", "")}
+
+
 def find_kd490():
     cands = []
     for base in ERDDAPS:
-        r = get(f"{base}/search/index.json", params={"page": 1, "itemsPerPage": 200, "searchFor": "kd490"})
-        if not r:
+        for term in ("kd490", "kd_490", "Kd490 daily"):
+            r = get(f"{base}/search/index.json", params={"page": 1, "itemsPerPage": 300, "searchFor": term})
+            if not r:
+                continue
+            j = r.json()["table"]
+            cols = j["columnNames"]
+            for row in j["rows"]:
+                d = dict(zip(cols, row))
+                title, did = d.get("Title", ""), d.get("Dataset ID", "")
+                t = title.lower()
+                if not d.get("griddap") or "end of mission" in t or "climatolog" in t or "monthly" in t or "8-day" in t or "weekly" in t:
+                    continue
+                if not ("daily" in t or "1day" in did.lower()):
+                    continue
+                score = ("dineof" in t or "gap-fill" in t or "gap fill" in t) * 6 + ("near real" in t or "nrt" in t) * 3 \
+                        + ("750" in t) * 2 + ("noaa-21" in t or "noaa21" in did.lower() or "n21" in did.lower()) * 1 \
+                        + ("noaa-20" in t or "n20" in did.lower()) * 1 + ("science quality" in t) * -2
+                if (score, base, did, title) not in cands:
+                    cands.append((score, base, did, title))
+    cands.sort(key=lambda c: -c[0])
+    good = []
+    for c in cands[:40]:
+        info = ginfo(c[1], c[2])
+        if not info or not info["var"]:
             continue
-        j = r.json()["table"]
-        cols = j["columnNames"]
-        for row in j["rows"]:
-            d = dict(zip(cols, row))
-            title, did = d.get("Title", ""), d.get("Dataset ID", "")
-            if not d.get("griddap"):
-                continue
-            t = title.lower()
-            daily = "daily" in t or "1day" in did.lower() or "1-day" in t
-            if not daily or "climatolog" in t or "monthly" in t or "8-day" in t or "science quality" in t:
-                continue
-            score = (("near real" in t or "nrt" in t) * 4 + ("viirs" in t) * 2 + ("750" in t or "0.0125" in t or "1.8 km" in t or "2km" in t) * 3
-                     + ("4km" in t or "0.0417" in t) * 1 - ("global" in t and "west" not in t) * 0)
-            cands.append((score, base, did, title))
-    cands.sort(reverse=True)
-    log["kd490_candidates"] = [c[2:] for c in cands[:10]]
-    return cands
+        lonmin, lonmax = info["lonmin"], info["lonmax"]
+        if lonmin is None or info["latmin"] is None:
+            continue
+        lon360 = lonmax is not None and lonmax > 180
+        lo1, lo2 = (-124 % 360, -118 % 360) if lon360 else (-124, -118)
+        covers = info["latmin"] <= 33 and info["latmax"] >= 41 and lonmin <= lo1 and lonmax >= lo2
+        try:
+            age = (now - dt.datetime.fromisoformat(info["end"].replace("Z", "+00:00"))).days
+        except Exception:
+            age = 99
+        if covers and age <= 5:
+            good.append((c[0], c[1], c[2], c[3], info, lon360))
+    log["kd490_candidates"] = [(g[2], g[3]) for g in good[:8]]
+    return good
 
 
-def fetch_kd490(base, did):
-    info = get(f"{base}/info/{did}/index.json")
-    if not info:
-        return None
-    rows = info.json()["table"]["rows"]
-    var = next((r[1] for r in rows if r[0] == "variable" and "kd" in r[1].lower()), None)
-    dims = [r[1] for r in rows if r[0] == "dimension"]
-    if not var:
-        return None
-    # last ~5 days, CA box; stride so cells are ~2-4 km
-    lat_res = None
-    for r in rows:
-        if r[0] == "attribute" and r[1] == "latitude" and r[2] == "actual_range":
-            pass
-    parts = []
-    for d in dims:
-        if d == "time":
-            parts.append("[(last-4):1:(last)]")
-        elif d in ("altitude", "depth", "zlev"):
-            parts.append("[0]")
-        elif d == "latitude":
-            parts.append("[(32.4):STRIDE:(42.1)]")
-        elif d == "longitude":
-            parts.append("[(-125.0):STRIDE:(-117.0)]")
-    # pick stride from resolution
-    res = 0.0125
-    for r in rows:
-        if r[0] == "attribute" and r[1] == "NC_GLOBAL" and r[2] in ("geospatial_lat_resolution",):
-            try:
-                res = abs(float(re.findall(r"[\d.]+", r[4])[0]))
-            except Exception:
-                pass
-    stride = max(1, round(0.025 / res))
-    q = var + "".join(parts).replace("STRIDE", str(stride))
-    # latitude may be stored north->south; ERDDAP accepts either order only matching storage, so try both
-    for attempt in (q, q.replace("(32.4):", "(42.1):").replace(":(42.1)]", ":(32.4)]", 1)):
-        r = get(f"{base}/griddap/{did}.csv", params=None) if False else get(f"{base}/griddap/{did}.csv?{attempt}")
+def fetch_kd490(base, did, info, lon360):
+    var, dims = info["var"], info["dims"]
+    res = info["res"] or 0.0125
+    stride = max(1, round(0.02 / res))
+    lonA, lonB = (-125.0 % 360, -117.0 % 360) if lon360 else (-125.0, -117.0)
+    def q(lat_order):
+        parts = []
+        for d in dims:
+            if d == "time":
+                parts.append("[(last-4):1:(last)]")
+            elif d == "latitude":
+                parts.append(f"[({lat_order[0]}):{stride}:({lat_order[1]})]")
+            elif d == "longitude":
+                parts.append(f"[({lonA}):{stride}:({lonB})]")
+            else:
+                parts.append("[0]")
+        return var + "".join(parts)
+    for order in ((32.4, 42.1), (42.1, 32.4)):
+        r = get(f"{base}/griddap/{did}.csv?{q(order)}")
         if r and len(r.text) > 1000:
-            return var, r.text, stride, res
+            return var, r.text, lon360
     return None
 
 
 sat, sat_meta = [], {}
-for score, base, did, title in find_kd490()[:6]:
+for score, base, did, title, info, lon360 in find_kd490()[:5]:
     print("[kd490] trying", did, "|", title)
-    got = fetch_kd490(base, did)
+    got = fetch_kd490(base, did, info, lon360)
     if not got:
         continue
-    var, text, stride, res = got
+    var, text, lon360 = got
     rd = csv.reader(io.StringIO(text))
     header = next(rd); next(rd)  # units row
     ti, yi, xi, vi = header.index("time"), header.index("latitude"), header.index("longitude"), header.index(var)
@@ -132,6 +147,8 @@ for score, base, did, title in find_kd490()[:6]:
         if not (0.01 < v < 6):
             continue
         lat, lon = float(row[yi]), float(row[xi])
+        if lon > 180:
+            lon -= 360
         if not near_coast(lon, lat):
             continue
         t = dt.datetime.fromisoformat(row[ti].replace("Z", "+00:00"))

@@ -1,17 +1,18 @@
 /* Offline support: app shell + data precached; data refreshed in the background; map tiles cached as viewed. */
-const VERSION = "lc-v5";
-const SHELL = ["./", "index.html", "css/app.css?v=5", "js/app.js?v=5", "js/geo.js?v=5", "manifest.webmanifest",
+const VERSION = "lc-v6";
+const SHELL = ["./", "index.html", "css/app.css?v=6", "js/app.js?v=6", "js/geo.js?v=6", "js/vis.js?v=6", "vendor/tide-predictor.js?v=6", "manifest.webmanifest",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/marker-icon.png",
   "vendor/leaflet/images/marker-icon-2x.png", "vendor/leaflet/images/marker-shadow.png", "vendor/leaflet/images/layers.png",
   "icons/icon-192.png", "icons/icon-512.png"];
-const DATA = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species"].map(f => `data/app/${f}.json`);
+const DATA = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config"].map(f => `data/app/${f}.json`);
 const TILE_HOSTS = ["tile.openstreetmap.org", "server.arcgisonline.com"];
 const TILE_MAX = 6000;
 
 self.addEventListener("install", e => {
   e.waitUntil((async () => {
     const c = await caches.open(VERSION);
-    await c.addAll([...SHELL, ...DATA]);
+    await c.addAll(SHELL);
+    await Promise.allSettled(DATA.map(d => c.add(d)));
     // species photos
     try {
       const sp = await (await fetch("data/app/species.json")).json();

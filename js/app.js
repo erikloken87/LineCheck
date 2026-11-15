@@ -10,12 +10,13 @@ const PINNED = ["rockfish", "lingcod", "cabezon", "greenlings", "halibut", "dung
 const STALE_DAYS = 30;
 
 async function loadData() {
-  const files = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species"];
+  const files = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config"];
   await Promise.all(files.map(async f => {
     try { D[f] = await (await fetch(`data/app/${f}.json`)).json(); } catch (e) { D[f] = null; console.warn("missing", f); }
   }));
   for (const f of D.mpa.features) { f.bbox = Geo.bbox(f.geometry); f.rings = Geo.geomRings(f.geometry); }
   for (const f of D.exclusion?.features || []) f.rings = Geo.geomRings(f.geometry);
+  Vis.init(D.conditions, D.tide_stations, D.reports_config);
 }
 
 /* ------------------------------------------------------------------ evaluation */
@@ -154,6 +155,8 @@ function render(ev, source) {
       ${p.legal ? `<details><summary>Regulation text (${esc(p.ccr || "14 CCR 632")})</summary><p class="legal">${esc(p.legal)}</p></details>` : ""}`;
   } else mp.hidden = true;
 
+  renderVis(ev.lat, ev.lon, source);
+
   // auto region for rules tab
   if (!state.regionPinned && ev.region !== state.region) { state.region = ev.region; renderRules(); }
 
@@ -196,7 +199,7 @@ function initMap() {
   }
   depthLayer = L.layerGroup().addTo(map);
   excl.addTo(map);
-  L.control.layers(bases, { "MPAs": mpaLayer, "Depth lines (30–150 fm)": lines, "Groundfish exclusion areas": excl }, { position: "topright" }).addTo(map);
+  L.control.layers(bases, { "MPAs": mpaLayer, "Depth lines (30–150 fm)": lines, "Groundfish exclusion areas": excl, "Visibility estimate": visLayer() }, { position: "topright" }).addTo(map);
   highlightActiveLine();
 
   const loc = L.control({ position: "bottomright" });
@@ -231,6 +234,84 @@ function backToGps() {
   if (state.gps) { map.setView([state.gps.lat, state.gps.lon], Math.max(map.getZoom(), 13)); render(evaluate(state.gps.lat, state.gps.lon, state.gps.acc), "gps"); }
 }
 $("backToGps").onclick = backToGps;
+
+
+/* ------------------------------------------------------------------ visibility card */
+const VCLS = { low: "red", avg: "amber", high: "green" };
+const fmtT = d => d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles" }).replace(" AM", "a").replace(" PM", "p");
+const dayName = i => i === 0 ? "Today" : new Date(Date.now() + i * 864e5).toLocaleDateString("en-US", { weekday: "short", timeZone: "America/Los_Angeles" });
+const compass8 = d => d == null ? "" : ["N", "NE", "E", "SE", "S", "SW", "W", "NW"][Math.round(d / 45) % 8];
+let visAt = null;
+function ago(iso) { const h = (Date.now() - new Date(iso)) / 3600e3; return h < 1 ? "under an hour ago" : h < 48 ? `${Math.round(h)} h ago` : `${Math.round(h / 24)} days ago`; }
+
+function renderVis(lat, lon, source) {
+  visAt = { lat, lon, source };
+  const P = $("visPanel");
+  if (!Vis.ready()) { P.innerHTML = `<div class="p-head"><span>Visibility estimate</span></div><p class="muted">Conditions data isn't available yet.</p>`; return; }
+  const e = Vis.estimate(lon, lat);
+  const out = Vis.outlook(lon, lat);
+  const t = e.tide;
+  const tideTxt = t && t.next[0] ? `${t.rising ? "Rising" : "Falling"} · ${t.next[0].high ? "high" : "low"} ${t.next[0].ft.toFixed(1)} ft at ${fmtT(t.next[0].time)}` : "–";
+  const old = (Date.now() - new Date(e.updated)) / 3600e3 > 24;
+  P.innerHTML = `
+    <div class="p-head"><span>Visibility estimate</span><span class="p-area">rough guide</span></div>
+    <div class="vis-big"><span class="pill ${VCLS[e.rating]} big">${Vis.LABEL[e.rating]}</span><span class="vis-ft">~${e.lo}–${e.hi} ft</span></div>
+    <div class="vis-why">${e.rep ? `<b>Based on ${e.rep.n} diver report${e.rep.n > 1 ? "s" : ""}</b> (newest ${Math.round(e.rep.newest)} h ago, median ${Math.round(e.rep.median)} ft). ` : ""}${esc(e.why.join(" · "))}.</div>
+    <div class="muted">Confidence: <b>${e.conf}</b> · data updated ${ago(e.updated)}${old ? " ⚠️" : ""}</div>
+    <div class="vis-grid">
+      <div><span>Swell</span><b>${e.swell != null ? (e.swell * 3.28084).toFixed(0) + " ft" : "–"}${e.period ? ` @ ${Math.round(e.period)}s` : ""}</b></div>
+      <div><span>Wind</span><b>${e.wind != null ? Math.round(e.wind) + " kt " + compass8(e.windDir) : "–"}</b></div>
+      <div><span>Water</span><b>${e.sst != null ? Math.round(e.sst * 9 / 5 + 32) + "°F" : "–"}</b></div>
+      <div><span>Tide</span><b>${esc(tideTxt)}</b></div>
+    </div>
+    <div class="vis-out">${out.map((o, i) => o ? `<div><span>${dayName(i)}</span><span class="pill ${VCLS[o.rating]}">${Vis.LABEL[o.rating]}</span></div>` : "").join("")}</div>
+    <div class="vis-actions">
+      <button class="btn2" id="saveSpotBtn">☆ Save this spot</button>
+      ${Vis.configured() ? `<button class="btn2" id="reportBtn">Report visibility</button>` : ""}
+    </div>
+    <div id="saveForm" hidden class="mini-form"><input id="spotName" maxlength="40" placeholder="Name, e.g. Pecho Rock"><button class="btn2 on" id="spotSave">Save</button></div>
+    <div id="reportForm" hidden class="mini-form">
+      <label>What visibility did you see? <input id="rVis" type="number" inputmode="numeric" min="1" max="100" placeholder="ft"></label>
+      <label>Water temp (optional) <input id="rTemp" type="number" inputmode="numeric" min="40" max="85" placeholder="°F"></label>
+      <label>Seen while <select id="rAct"><option value="dive">Diving</option><option value="snorkel">Snorkeling</option><option value="surface">Looking from the surface</option></select></label>
+      <button class="btn2 on" id="rSend">Send report</button>
+      <div class="muted" id="rMsg">Shared publicly, anonymously, with the location rounded to about 1 km. ${Vis.reportsLeftToday()} left today.</div>
+    </div>`;
+  $("saveSpotBtn").onclick = () => { $("saveForm").hidden = !$("saveForm").hidden; $("spotName").focus(); };
+  $("spotSave").onclick = () => { const n = $("spotName").value.trim(); if (!n) return; Vis.saveSpot(n, lat, lon); $("saveForm").hidden = true; renderSpots(); };
+  if ($("reportBtn")) $("reportBtn").onclick = () => { $("reportForm").hidden = !$("reportForm").hidden; };
+  if ($("rSend")) $("rSend").onclick = async () => {
+    try {
+      await Vis.submitReport({ lat, lon, vis: +$("rVis").value, temp: $("rTemp").value ? +$("rTemp").value : null, act: $("rAct").value });
+      $("rMsg").textContent = navigator.onLine ? "Thanks! Your report is in." : "Saved; it'll send when you're back online.";
+      setTimeout(() => renderVis(lat, lon, source), 1200);
+    } catch (err) { $("rMsg").textContent = err.message; }
+  };
+}
+
+function renderSpots() {
+  const P = $("spotsPanel"), sp = Vis.spots();
+  if (!sp.length || !Vis.ready()) { P.innerHTML = `<div class="p-head"><span>Your spots</span></div><p class="muted">Tap ☆ Save this spot on the visibility card to keep a list of your spots with a 3-day outlook.</p>`; return; }
+  P.innerHTML = `<div class="p-head"><span>Your spots · next 3 days</span></div>` + sp.map((s, i) => {
+    const out = Vis.outlook(s.lon, s.lat);
+    const best = out.reduce((b, o, j) => o && (!out[b] || o.ft > out[b].ft) ? j : b, 0);
+    return `<div class="spot"><button class="spot-n" data-i="${i}">${esc(s.name)}</button>
+      <div class="spot-days">${out.map((o, j) => o ? `<span class="pill ${VCLS[o.rating]} ${j === best ? "best" : ""}" title="${dayName(j)}">${dayName(j).slice(0, 3)}</span>` : "").join("")}</div>
+      <button class="spot-x" data-x="${i}" aria-label="Remove">✕</button></div>`;
+  }).join("") + `<p class="muted">Outlined = best day.</p>`;
+  P.querySelectorAll(".spot-n").forEach(b => b.onclick = () => { const s = sp[+b.dataset.i]; map.setView([s.lat, s.lon], 13); checkPin(L.latLng(s.lat, s.lon)); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  P.querySelectorAll(".spot-x").forEach(b => b.onclick = () => { Vis.removeSpot(+b.dataset.x); renderSpots(); });
+}
+
+function visLayer() {
+  const g = L.layerGroup();
+  for (const p of D.conditions?.points || []) {
+    const e = Vis.estimate(p.lon, p.lat);
+    if (!e) continue;
+    L.circleMarker([p.lat, p.lon], { radius: 7, weight: 1, color: "#fff", fillColor: { low: "#d7263d", avg: "#f29e0b", high: "#1b9e5a" }[e.rating], fillOpacity: 0.9, interactive: false }).addTo(g);
+  }
+  return g;
+}
 
 /* ------------------------------------------------------------------ GPS */
 function startGps() {
@@ -380,7 +461,7 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
 (async function boot() {
   await loadData();
   initMap();
-  renderRules(); renderId(); renderInfo();
+  renderRules(); renderId(); renderInfo(); renderSpots();
   startGps();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => r.update()).catch(() => { });
 })();

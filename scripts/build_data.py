@@ -216,6 +216,10 @@ for key, page, label, south, north in REGIONS:
     regions.append({"key": key, "name": page.replace("-", " ").replace("SF Bay", "SF Bay"), "label": label,
                     "south": south, "north": north, "updated": upd.group(1) if upd else None, "url": url,
                     "notes": list(dict.fromkeys(notes))[:3], "cards": section_cards(main, url)})
+# Guard: if CDFW redesigns its pages and parsing breaks, fail loudly instead of publishing empty rules.
+thin = [r["key"] for r in regions if len(r["cards"]) < 10]
+if len(regions) < 6 or thin:
+    raise SystemExit(f"Regulation parsing looks broken (regions={len(regions)}, thin={thin}); not publishing.")
 dump("regs.json", regions)
 meta["sources"]["regs"] = {r["key"]: r["updated"] for r in regions}
 
@@ -237,6 +241,7 @@ sp_out = os.path.join(OUT, "species.json")
 if os.path.exists(sp_out):
     try:
         from PIL import Image
+        Image.MAX_IMAGE_PIXELS = 40_000_000  # refuse absurdly large (decompression-bomb) images
     except ImportError:
         Image = None
     FED = re.compile(r"NOAA|NMFS|National Marine Sanctuar|National Park Service|Fish and Wildlife Service|USGS", re.I)

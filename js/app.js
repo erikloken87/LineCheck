@@ -2,6 +2,9 @@
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const D = {};
+// Only allow links/images we expect; anything else from the data files is dropped.
+const safeUrl = u => /^https:\/\/(www\.)?wildlife\.ca\.gov\//.test(u || "") ? esc(u) : "#";
+const safePhoto = u => /^photos\/[a-z0-9_-]+\.jpg$/.test(u || "") ? u : "";
 const state = { gps: null, pin: null, lastKey: null, follow: true, region: null, regionPinned: false };
 const PINNED = ["rockfish", "lingcod", "cabezon", "greenlings", "halibut", "dungeness", "rock", "surfperch"];
 const STALE_DAYS = 30;
@@ -91,6 +94,7 @@ function groundfishAt(lat, lon, tol) {
 }
 
 /* ------------------------------------------------------------------ rendering: Here */
+const cls = (v, ok) => ok.includes(v) ? v : "";
 const COLORS = { red: "#d7263d", amber: "#f29e0b", violet: "#7b4fd6", green: "#1b9e5a" };
 function fmtUntil(md) {
   const [m, d] = md.split("-").map(Number);
@@ -99,29 +103,29 @@ function fmtUntil(md) {
 
 function render(ev, source) {
   const b = $("banner");
-  let cls, kicker, title, sub, key;
+  let klass, kicker, title, sub, key;
   const top = ev.inside[0];
   if (top) {
     const p = top.f.properties;
-    cls = p.color; key = "in:" + p.name;
+    klass = cls(p.color, ["red", "amber", "violet"]); key = "in:" + p.name;
     kicker = p.color === "red" ? "Inside an MPA" : p.color === "violet" ? "Inside a special closure" : "Inside an MPA";
     title = p.headline;
     sub = `${esc(p.full)}<br>${esc(p.summary)}`;
     if (top.e.d <= Math.max(ev.acc || 0, 10)) sub += `<br><b>Near the edge</b> (${Geo.fmtDist(top.e.d)} away)`;
   } else if (ev.near.length) {
     const p = ev.near[0].f.properties;
-    cls = "near"; key = "near:" + p.name;
+    klass = "near"; key = "near:" + p.name;
     kicker = "Near an MPA boundary";
     title = "Treat as inside";
     sub = `${esc(p.full)} is ${Geo.fmtDist(ev.near[0].e.d)} ${Geo.compass(ev.near[0].e.bearing)}, within your GPS accuracy.<br>${esc(p.headline)}: ${esc(p.summary)}`;
   } else {
-    cls = "green"; key = "out";
+    klass = "green"; key = "out";
     kicker = "Outside all MPAs";
     title = "No MPA here";
     const n = ev.nearest;
-    sub = n ? `Nearest: <b>${esc(n.f.properties.name)}</b> · ${Geo.fmtDist(n.e.d)} ${Geo.compass(n.e.bearing)} <span class="pill ${n.f.properties.color}">${esc(n.f.properties.headline)}</span>` : "";
+    sub = n ? `Nearest: <b>${esc(n.f.properties.name)}</b> · ${Geo.fmtDist(n.e.d)} ${Geo.compass(n.e.bearing)} <span class="pill ${cls(n.f.properties.color, ["red","amber","violet"])}">${esc(n.f.properties.headline)}</span>` : "";
   }
-  b.className = "banner " + cls;
+  b.className = "banner " + klass;
   $("bKicker").textContent = kicker;
   $("bTitle").textContent = title;
   $("bSub").innerHTML = sub;
@@ -145,7 +149,7 @@ function render(ev, source) {
   if (shown) {
     const p = shown.f.properties;
     mp.hidden = false;
-    mp.innerHTML = `<div class="p-head"><span>${esc(p.full)}</span><span class="pill ${p.color}">${esc(p.type)}</span></div>
+    mp.innerHTML = `<div class="p-head"><span>${esc(p.full)}</span><span class="pill ${cls(p.color, ["red","amber","violet"])}">${esc(p.type)}</span></div>
       <p>${esc(p.summary)}</p>
       ${p.legal ? `<details><summary>Regulation text (${esc(p.ccr || "14 CCR 632")})</summary><p class="legal">${esc(p.legal)}</p></details>` : ""}`;
   } else mp.hidden = true;
@@ -155,7 +159,7 @@ function render(ev, source) {
 
   // buzz on change (GPS only)
   if (source === "gps" && state.lastKey && key !== state.lastKey && navigator.vibrate) {
-    navigator.vibrate(cls === "green" ? [120] : [250, 120, 250, 120, 250]);
+    navigator.vibrate(klass === "green" ? [120] : [250, 120, 250, 120, 250]);
   }
   if (source === "gps") state.lastKey = key;
 }
@@ -255,12 +259,12 @@ function startGps() {
 function renderRules() {
   const regs = D.regs || [];
   const cur = state.region || "central";
-  $("regionChips").innerHTML = regs.map(r => `<button class="chip ${r.key === cur ? "on" : ""}" data-r="${r.key}">${esc(r.name)}</button>`).join("");
+  $("regionChips").innerHTML = regs.map(r => `<button class="chip ${r.key === cur ? "on" : ""}" data-r="${esc(r.key)}">${esc(r.name)}</button>`).join("");
   $("regionChips").querySelectorAll(".chip").forEach(c => c.onclick = () => { state.region = c.dataset.r; state.regionPinned = true; renderRules(); });
   const r = regs.find(x => x.key === cur);
   if (!r) return;
   $("regsHead").innerHTML = `<div class="rh-t">${esc(r.label)}</div>
-    <div class="rh-s">CDFW summary updated ${esc(r.updated || "?")} · <a href="${r.url}" target="_blank" rel="noopener">View on CDFW</a></div>
+    <div class="rh-s">CDFW summary updated ${esc(r.updated || "?")} · <a href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer">View on CDFW</a></div>
     ${[...new Set(r.notes)].map(n => `<details class="note"><summary><b>Alert:</b> ${esc(n.replace(/^NOTE:\s*/, "").slice(0, 90))}… <u>more</u></summary>${esc(n.replace(/^NOTE:\s*/, ""))}</details>`).join("")}`;
   const q = ($("regsSearch").value || "").toLowerCase();
   const cards = r.cards.filter(c => !q || (c.title + " " + c.text.join(" ")).toLowerCase().includes(q));
@@ -270,12 +274,12 @@ function renderRules() {
   const card = c => {
     const gf = gfIds.includes(c.id) ? groundfishCard(c.id, cur) : "";
     const st = { open: "Open", partial: "Partly closed / alert", closed: "Closed" }[c.status] || c.status;
-    return `<details class="rcard ${c.status}">
-      <summary><span class="rc-t">${esc(c.title)}</span><span class="pill ${c.status}">${st}</span>
+    return `<details class="rcard ${cls(c.status, ["open","partial","closed"])}">
+      <summary><span class="rc-t">${esc(c.title)}</span><span class="pill ${cls(c.status, ["open","partial","closed"])}">${esc(st)}</span>
         ${!gf && (c.bag || c.size) ? `<div class="rc-q">${c.bag ? `Bag: ${esc(c.bag)}` : ""}${c.bag && c.size ? " · " : ""}${c.size ? `Min size: ${esc(c.size)}` : ""}</div>` : ""}
         ${gf ? `<div class="rc-q">${gf.quick}</div>` : ""}</summary>
       ${gf ? gf.body : c.text.map(t => `<p>${esc(t)}</p>`).join("")}
-      <a class="src" href="${c.url}" target="_blank" rel="noopener">CDFW: ${esc(c.title)} ↗</a>
+      <a class="src" href="${safeUrl(c.url)}" target="_blank" rel="noopener noreferrer">CDFW: ${esc(c.title)} ↗</a>
     </details>`;
   };
   $("regsList").innerHTML = (pinned.length ? `<div class="sec">Your species</div>${pinned.map(card).join("")}` : "") +
@@ -316,9 +320,9 @@ function renderId() {
   const list = sp.filter(s => (idFilter === "all" || (idFilter === "nokeep" ? s.nokeep : s.group === idFilter)) &&
     (!q || (s.name + " " + (s.aka || []).join(" ") + " " + s.sci).toLowerCase().includes(q)));
   $("idList").innerHTML = list.map(s => `
-    <details class="fcard ${s.nokeep ? "nokeep" : ""}" id="sp-${s.id}">
+    <details class="fcard ${s.nokeep ? "nokeep" : ""}">
       <summary>
-        ${s.photo ? `<img loading="lazy" src="${s.photo}" alt="">` : `<div class="noimg">no photo</div>`}
+        ${safePhoto(s.photo) ? `<img loading="lazy" src="${safePhoto(s.photo)}" alt="">` : `<div class="noimg">no photo</div>`}
         <div class="fc-h"><div class="fc-n">${esc(s.name)}</div><div class="fc-s"><i>${esc(s.sci)}</i>${s.aka?.length ? " · " + esc(s.aka.join(", ")) : ""}</div>
         ${s.nokeep ? `<span class="pill red">Never keep</span>` : s.tag ? `<span class="pill amber">${esc(s.tag)}</span>` : ""}</div>
       </summary>

@@ -1,0 +1,10 @@
+# GitHub Pages: publish only the app. Raw downloads (third-party HTML), scripts and
+# intermediate GIS files stay in the repo but are not served from the app's origin.
+exclude:
+  - raw
+  - scripts
+  - data/gis
+  - data/manual
+  - data/photo_sources.json
+  - README.md
+  - requirements.txt

@@ -19,6 +19,10 @@ RAW = os.path.join(ROOT, "raw", "pages")
 os.makedirs(GIS, exist_ok=True)
 os.makedirs(RAW, exist_ok=True)
 
+CDFW_ORG = "/Uq9r85Potqm3MfRV/"  # services2.arcgis.com/<org> used by CDFW's BIOS datasets
+# Sanity bounds: if a download falls outside these, keep last week's data instead of publishing it.
+EXPECT = {"mpa": (140, 220), "rca": (40, 150), "gf_areas": (5, 8), "gf_exclusion": (1, 20)}
+
 DATASETS = {
     "mpa": "ds582",            # California Marine Protected Areas
     "rca": "ds3144",           # Rockfish Conservation Area lines
@@ -59,7 +63,9 @@ def find_service(code):
         if not r:
             continue
         items = r.json().get("results", [])
-        hits = [i for i in items if f"[{code}]" in (i.get("title") or "") and i.get("url")]
+        # Only accept services hosted by CDFW's own ArcGIS organization. Anyone can publish an
+        # ArcGIS item with a look-alike title, so a title match alone isn't trustworthy.
+        hits = [i for i in items if f"[{code}]" in (i.get("title") or "") and CDFW_ORG in (i.get("url") or "")]
         # Prefer CDFW's own BIOS org, then newest
         hits.sort(key=lambda i: ("Uq9r85Potqm3MfRV" not in i.get("url", ""), "Feature Service" != i.get("type"), -i.get("modified", 0)))
         if hits:
@@ -91,12 +97,14 @@ def query_layer(url):
     return layer, lmeta.get("name"), fields, feats
 
 
+FAILED = []
 for name, code in DATASETS.items():
     print(f"[{name}] {code}")
     item, cands = find_service(code)
     entry = {"code": code, "candidates": cands}
     if not item:
-        entry["error"] = "not found"
+        entry["error"] = "not found on CDFW's ArcGIS org; kept previous data"
+        FAILED.append(name)
         report["datasets"][name] = entry
         continue
     try:
@@ -104,9 +112,18 @@ for name, code in DATASETS.items():
         entry.update(title=item["title"], item_id=item["id"], layer=layer, layer_name=lname, fields=fields,
                      count=len(feats), modified=item.get("modified"),
                      sample=[f.get("properties") for f in feats[:3]])
-        with open(os.path.join(GIS, f"{name}.geojson"), "w") as fh:
-            json.dump({"type": "FeatureCollection", "features": feats}, fh, separators=(",", ":"))
-        print(f"  {len(feats)} features from {layer}")
+        lo, hi = EXPECT[name]
+        bad_geom = sum(1 for f in feats if not (f.get("geometry") or {}).get("coordinates"))
+        if not (lo <= len(feats) <= hi) or bad_geom:
+            entry["error"] = f"rejected: {len(feats)} features ({bad_geom} empty), expected {lo}-{hi}; kept previous data"
+            print("  ", entry["error"])
+            FAILED.append(name)
+        else:
+            tmp = os.path.join(GIS, f"{name}.geojson.tmp")
+            with open(tmp, "w") as fh:
+                json.dump({"type": "FeatureCollection", "features": feats}, fh, separators=(",", ":"))
+            os.replace(tmp, os.path.join(GIS, f"{name}.geojson"))
+            print(f"  {len(feats)} features from {layer}")
     except Exception as e:
         entry["error"] = repr(e)
         print("  failed", e)
@@ -208,4 +225,6 @@ with open(manifest_path, "w") as fh:
     json.dump(manifest, fh, indent=1, sort_keys=True)
 with open(os.path.join(GIS, "_report.json"), "w") as fh:
     json.dump(report, fh, indent=1)
+if FAILED:
+    print("WARNING: kept previous data for", FAILED)
 print("done:", {k: v.get("count") for k, v in report["datasets"].items()}, len(manifest), "pages")

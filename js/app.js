@@ -213,12 +213,16 @@ function highlightActiveLine() {
   depthLayer.clearLayers();
   const fms = new Set();
   const { md } = todayMMDD();
+  // Only draw a depth line where that management area's current rule actually uses it
   for (const a of D.groundfish.areas) for (const g of ["nearshore", "shelf"]) {
     const p = a[g].find(p => md >= p.from && md <= p.to);
-    if (p && p.fm) fms.add(String(p.fm));
+    if (!p || !p.fm) continue;
+    for (const part of D.lines[String(p.fm)] || []) {
+      const mid = part[Math.floor(part.length / 2)][1];
+      if (mid >= a.south && mid < a.north)
+        L.polyline(part.map(c => [c[1], c[0]]), { color: "#d7263d", weight: 2.5, opacity: 0.9, interactive: false }).addTo(depthLayer);
+    }
   }
-  for (const fm of fms) for (const part of D.lines[fm] || [])
-    L.polyline(part.map(c => [c[1], c[0]]), { color: "#d7263d", weight: 2.5, opacity: 0.9, interactive: false }).addTo(depthLayer);
 }
 
 function checkPin(latlng) {
@@ -256,7 +260,7 @@ function renderVis(lat, lon, source) {
   P.innerHTML = `
     <div class="p-head"><span>Visibility estimate</span><span class="p-area">rough guide</span></div>
     <div class="vis-big"><span class="pill ${VCLS[e.rating]} big">${Vis.LABEL[e.rating]}</span><span class="vis-ft">~${e.lo}–${e.hi} ft</span></div>
-    <div class="vis-why">${e.rep ? `<b>Based on ${e.rep.n} diver report${e.rep.n > 1 ? "s" : ""}</b> (newest ${Math.round(e.rep.newest)} h ago, median ${Math.round(e.rep.median)} ft). ` : ""}${esc(e.why.join(" · "))}.</div>
+    <div class="vis-why">${e.rep ? `<b>Based on ${e.rep.n} diver report${e.rep.n > 1 ? "s" : ""}</b> (newest ${Math.round(e.rep.newest)} h ago, median ${Math.round(e.rep.median)} ft). ` : ""}${esc((w => w.charAt(0).toUpperCase() + w.slice(1))(e.why.join(" · ")))}.</div>
     <div class="muted">Confidence: <b>${e.conf}</b> · data updated ${ago(e.updated)}${old ? " ⚠️" : ""}</div>
     <div class="vis-grid">
       <div><span>Swell</span><b>${e.swell != null ? (e.swell * 3.28084).toFixed(0) + " ft" : "–"}${e.period ? ` @ ${Math.round(e.period)}s` : ""}</b></div>
@@ -296,7 +300,7 @@ function renderSpots() {
     const out = Vis.outlook(s.lon, s.lat);
     const best = out.reduce((b, o, j) => o && (!out[b] || o.ft > out[b].ft) ? j : b, 0);
     return `<div class="spot"><button class="spot-n" data-i="${i}">${esc(s.name)}</button>
-      <div class="spot-days">${out.map((o, j) => o ? `<span class="pill ${VCLS[o.rating]} ${j === best ? "best" : ""}" title="${dayName(j)}">${dayName(j).slice(0, 3)}</span>` : "").join("")}</div>
+      <div class="spot-days">${out.map((o, j) => o ? `<span class="pill ${VCLS[o.rating]} ${j === best ? "best" : ""}" title="${dayName(j)}">${dayName(j)}</span>` : "").join("")}</div>
       <button class="spot-x" data-x="${i}" aria-label="Remove">✕</button></div>`;
   }).join("") + `<p class="muted">Outlined = best day.</p>`;
   P.querySelectorAll(".spot-n").forEach(b => b.onclick = () => { const s = sp[+b.dataset.i]; map.setView([s.lat, s.lon], 13); checkPin(L.latLng(s.lat, s.lon)); window.scrollTo({ top: 0, behavior: "smooth" }); });

@@ -8,6 +8,7 @@ const Vis = (() => {
 
   function init(cond, tides, cfg) { st.cond = cond; st.tides = tides; st.cfg = cfg; flushQueue(); }
 
+  function median(a) { const b = [...a].sort((x, y) => x - y); return b[Math.floor(b.length / 2)]; }
   function nearest(list, lon, lat, getLL, maxKm) {
     let best = null, bd = Infinity;
     for (const it of list || []) { const [x, y] = getLL(it); const d = km(lon, lat, x, y); if (d < bd) { bd = d; best = it; } }
@@ -62,11 +63,18 @@ const Vis = (() => {
     const why = [];
     let conf = 2;
     const pt = nearest(C.points, lon, lat, p => [p.lon, p.lat], 20);
-    const sat = nearest(C.sat, lon, lat, c => [c[0], c[1]], 6);
+    // satellite: median of cells within 3 km, else the nearest within 6 km
+    let cells = (C.sat || []).filter(c => km(lon, lat, c[0], c[1]) <= 3);
+    const nn = nearest(C.sat, lon, lat, c => [c[0], c[1]], 6);
+    if (!cells.length && nn) cells = [nn.it];
+    const sat = cells.length ? { it: [0, 0, median(cells.map(c => c[2])), Math.min(...cells.map(c => c[3]))], d: nn ? nn.d : 6 } : null;
     let base;
     if (sat) {
       const [, , kd, age] = sat.it;
-      base = Math.max(3, Math.min(100, (1.5 / kd) * FT));
+      // Kd490 -> diver visibility. Satellite Secchi depth is roughly 1.5/Kd, but horizontal visibility
+      // underwater near shore is typically about half of that; 0.8/Kd is a starting calibration that
+      // public diver reports then correct locally.
+      base = Math.max(3, Math.min(80, (0.8 / kd) * FT));
       if (age <= 1.5 && sat.d <= 4) { conf += 1; why.push(`satellite clarity from ${age < 1 ? "today" : "yesterday"}`); }
       else if (age > 3) { conf -= 1; why.push(`satellite reading is ${Math.round(age)} days old (fog?)`); }
       else why.push(`satellite clarity from ${Math.round(age)} days ago`);

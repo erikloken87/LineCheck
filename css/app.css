@@ -93,3 +93,4 @@ a{color:var(--navy)}
 .spot-days{display:flex;gap:4px}
 .spot-days .pill.best{outline:2px solid var(--ink);outline-offset:1px}
 .spot-x{border:0;background:none;color:var(--mut);font-size:16px}
+.mini-form[hidden]{display:none}

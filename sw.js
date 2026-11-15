@@ -1,6 +1,6 @@
 /* Offline support: app shell + data precached; data refreshed in the background; map tiles cached as viewed. */
-const VERSION = "lc-v6";
-const SHELL = ["./", "index.html", "css/app.css?v=6", "js/app.js?v=6", "js/geo.js?v=6", "js/vis.js?v=6", "vendor/tide-predictor.js?v=6", "manifest.webmanifest",
+const VERSION = "lc-v7";
+const SHELL = ["./", "index.html", "css/app.css?v=7", "js/app.js?v=7", "js/geo.js?v=7", "js/vis.js?v=7", "vendor/tide-predictor.js?v=7", "manifest.webmanifest",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/marker-icon.png",
   "vendor/leaflet/images/marker-icon-2x.png", "vendor/leaflet/images/marker-shadow.png", "vendor/leaflet/images/layers.png",
   "icons/icon-192.png", "icons/icon-512.png"];

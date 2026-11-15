@@ -10,7 +10,7 @@ const PINNED = ["rockfish", "lingcod", "cabezon", "greenlings", "halibut", "dung
 const STALE_DAYS = 30;
 
 async function loadData() {
-  const files = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config"];
+  const files = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config", "piers"];
   await Promise.all(files.map(async f => {
     try { D[f] = await (await fetch(`data/app/${f}.json`)).json(); } catch (e) { D[f] = null; console.warn("missing", f); }
   }));
@@ -134,7 +134,12 @@ function render(ev, source) {
   // groundfish panel
   const gf = ev.gf;
   if (gf) {
-    $("gfArea").textContent = gf.area.name + " area";
+    $("gfArea").textContent = gf.area.name + " management area · boat-based rules";
+    const gs = [...new Set(gf.rows.map(r => r.status))];
+    const gword = { open: "Open", closed: "Closed", near: "Near the line", unknown: "Not loaded" }, gcls = { open: "green", closed: "red", near: "amber", unknown: "" };
+    $("gfSum").innerHTML = ev.excl.length ? `<span class="pill red">Exclusion area</span>` : gs.length === 1
+      ? `<span class="pill ${gcls[gs[0]]}">${gword[gs[0]]}</span>${gs[0] === "open" && gf.rows[0].rule === "all" ? "all depths" : ""}`
+      : gf.rows.map(r => `<span class="pill ${gcls[r.status]}">${r.grp === "nearshore" ? "Nearshore" : "Shelf"}: ${gword[r.status]}</span>`).join("");
     $("gfRows").innerHTML = gf.rows.map(r => `
       <div class="gf-row ${r.status}">
         <span class="gf-dot">${r.status === "open" ? "✓" : r.status === "closed" ? "✕" : "!"}</span>
@@ -156,6 +161,9 @@ function render(ev, source) {
   } else mp.hidden = true;
 
   renderVis(ev.lat, ev.lon, source);
+  renderGuide(ev);
+  renderWx(ev.lat, ev.lon);
+  renderBiteMini(ev.lat, ev.lon);
 
   // auto region for rules tab
   if (!state.regionPinned && ev.region !== state.region) { state.region = ev.region; renderRules(); }
@@ -164,6 +172,7 @@ function render(ev, source) {
   if (source === "gps" && state.lastKey && key !== state.lastKey && navigator.vibrate) {
     navigator.vibrate(klass === "green" ? [120] : [250, 120, 250, 120, 250]);
   }
+  if (source === "gps" && state.lastKey && key !== state.lastKey) Settings.beep(klass === "green" ? "ok" : "alert");
   if (source === "gps") state.lastKey = key;
 }
 
@@ -199,7 +208,8 @@ function initMap() {
   }
   depthLayer = L.layerGroup().addTo(map);
   excl.addTo(map);
-  L.control.layers(bases, { "MPAs": mpaLayer, "Depth lines (30–150 fm)": lines, "Groundfish exclusion areas": excl, "Visibility estimate": visLayer() }, { position: "topright" }).addTo(map);
+  L.control.layers(bases, { "MPAs": mpaLayer, "Depth lines (30–150 fm)": lines, "Groundfish exclusion areas": excl, "Visibility estimate": visLayer(),
+    ...(D.piers?.length ? { "Public piers & jetties (no license needed)": piersLayer() } : {}) }, { position: "topright" }).addTo(map);
   map.on("overlayadd", e => { if (e.layer.fill) e.layer.fill(); });
   highlightActiveLine();
 
@@ -208,6 +218,12 @@ function initMap() {
   loc.addTo(map);
   map.on("click", e => checkPin(e.latlng));
   map.on("dragstart", () => { state.follow = false; });
+}
+
+function piersLayer() {
+  const g = L.layerGroup();
+  for (const [lon, lat, name] of D.piers) L.circleMarker([lat, lon], { radius: 6, weight: 2, color: "#fff", fillColor: "#0b6fb8", fillOpacity: 1 }).bindTooltip(String(name)).addTo(g);
+  return g;
 }
 
 function highlightActiveLine() {
@@ -251,16 +267,17 @@ function ago(iso) { const h = (Date.now() - new Date(iso)) / 3600e3; return h < 
 
 function renderVis(lat, lon, source) {
   visAt = { lat, lon, source };
-  if ($("tab-bite").classList.contains("active") && !$("biteBody").contains(document.activeElement)) renderBite();
   const P = $("visPanel");
-  if (!Vis.ready()) { P.innerHTML = `<div class="p-head"><span>Visibility estimate</span></div><p class="muted">Conditions data isn't available yet.</p>`; return; }
+  if (!Vis.ready()) { $("visSum").textContent = "no data yet"; P.innerHTML = `<p class="muted">Conditions data isn't available yet.</p>`; return; }
   const e = Vis.estimate(lon, lat);
+  $("visSum").innerHTML = `<span class="pill ${VCLS[e.rating]}">${Vis.LABEL[e.rating]}</span>~${e.lo}–${e.hi} ft`;
+  // don't wipe a form someone is typing in when the GPS ticks
+  if (source === "gps" && P.querySelector(".mini-form:not([hidden])")) return;
   const out = Vis.outlook(lon, lat);
   const t = e.tide;
   const tideTxt = t && t.next[0] ? `${t.rising ? "Rising" : "Falling"} · ${t.next[0].high ? "high" : "low"} ${t.next[0].ft.toFixed(1)} ft at ${fmtT(t.next[0].time)}` : "–";
   const old = (Date.now() - new Date(e.updated)) / 3600e3 > 24;
   P.innerHTML = `
-    <div class="p-head"><span>Visibility estimate</span><span class="p-area">rough guide</span></div>
     <div class="vis-big"><span class="pill ${VCLS[e.rating]} big">${Vis.LABEL[e.rating]}</span><span class="vis-ft">~${e.lo}–${e.hi} ft</span></div>
     <div class="vis-why">${e.rep ? `<b>Based on ${e.rep.n} diver report${e.rep.n > 1 ? "s" : ""}</b> (newest ${Math.round(e.rep.newest)} h ago, median ${Math.round(e.rep.median)} ft). ` : ""}${esc((w => w.charAt(0).toUpperCase() + w.slice(1))(e.why.join(" · ")))}.</div>
     <div class="muted">Confidence: <b>${e.conf}</b> · data updated ${ago(e.updated)}${old ? " ⚠️" : ""}</div>
@@ -284,7 +301,7 @@ function renderVis(lat, lon, source) {
       <div class="muted" id="rMsg">${Vis.configured() ? "Shared publicly, anonymously, with the location rounded to about 1 km." : "Saved on this phone for now, and used to tune this spot's estimates. Public sharing isn't switched on yet."} ${Vis.reportsLeftToday()} left today.</div>
     </div>`;
   $("saveSpotBtn").onclick = () => { $("saveForm").hidden = !$("saveForm").hidden; $("spotName").focus(); };
-  $("spotSave").onclick = () => { const n = $("spotName").value.trim(); if (!n) return; Vis.saveSpot(n, lat, lon); $("saveForm").hidden = true; renderSpots(); };
+  $("spotSave").onclick = () => { const n = $("spotName").value.trim(); if (!n) return; Vis.saveSpot(n, lat, lon); $("saveForm").hidden = true; $("saveSpotBtn").textContent = "★ Saved"; if (navigator.vibrate) navigator.vibrate(25); };
   if ($("reportBtn")) $("reportBtn").onclick = () => { $("reportForm").hidden = !$("reportForm").hidden; };
   if ($("rSend")) $("rSend").onclick = async () => {
     try {
@@ -300,8 +317,8 @@ const BLABEL = { good: "Good", fair: "Fair", poor: "Poor" };
 let biteChoice = "ok";
 function renderBite() {
   const P = $("biteBody");
-  const at = visAt || (state.gps ? { lat: state.gps.lat, lon: state.gps.lon, source: "gps" } : null);
-  if (!at || !Vis.ready()) { P.innerHTML = `<p class="muted">Waiting for a location. Open the Here tab, or tap the map there to pick a spot.</p>`; return; }
+  const at = Spot.current();
+  if (!at || !Vis.ready()) { P.innerHTML = ""; return; }
   const B = Bite.forecast(at.lon, at.lat);
   if (!B) { P.innerHTML = `<p class="muted">No conditions data near this spot. Bite conditions cover the California coast out to about 12 miles.</p>`; return; }
   const ev = evaluate(at.lat, at.lon, 0);
@@ -327,8 +344,8 @@ function renderBite() {
   };
   const logs = Bite.logs();
   P.innerHTML = `
-    <div class="bhead">Bite conditions</div>
-    <div class="bsub">${at.source === "pin" ? "For the spot you tapped on the map" : "For your location"} · times shown are the best 3-hour window each day</div>
+    <div class="bhead">Bite details: ${esc(at.name)}</div>
+    <div class="bsub">Times shown are the best 3-hour window each day. Tap a species to see why.</div>
     ${top && top.color === "red" ? `<p class="warn">This spot is inside ${esc(top.full)}: no fishing here.</p>` : ""}
     ${B.species.map(card).join("")}
     <p class="muted">These are rules of thumb about tide, swell, wind, light and season. They haven't been checked against catch data yet, so treat them as "are conditions right?", not a prediction.</p>
@@ -351,18 +368,21 @@ function renderBite() {
   };
 }
 
-function renderSpots() {
-  const P = $("spotsPanel"), sp = Vis.spots();
-  if (!sp.length || !Vis.ready()) { P.innerHTML = `<div class="p-head"><span>Your spots</span></div><p class="muted">Tap ☆ Save this spot on the visibility card to keep a list of your spots with a 3-day outlook.</p>`; return; }
-  P.innerHTML = `<div class="p-head"><span>Your spots · next 3 days</span></div>` + sp.map((s, i) => {
-    const out = Vis.outlook(s.lon, s.lat);
-    const best = out.reduce((b, o, j) => o && (!out[b] || o.ft > out[b].ft) ? j : b, 0);
-    return `<div class="spot"><button class="spot-n" data-i="${i}">${esc(s.name)}</button>
-      <div class="spot-days">${out.map((o, j) => o ? `<span class="pill ${VCLS[o.rating]} ${j === best ? "best" : ""}" title="${dayName(j)}">${dayName(j)}</span>` : "").join("")}</div>
-      <button class="spot-x" data-x="${i}" aria-label="Remove">✕</button></div>`;
-  }).join("") + `<p class="muted">Outlined = best day.</p>`;
-  P.querySelectorAll(".spot-n").forEach(b => b.onclick = () => { const s = sp[+b.dataset.i]; map.setView([s.lat, s.lon], 13); checkPin(L.latLng(s.lat, s.lon)); window.scrollTo({ top: 0, behavior: "smooth" }); });
-  P.querySelectorAll(".spot-x").forEach(b => b.onclick = () => { Vis.removeSpot(+b.dataset.x); renderSpots(); });
+// One-line bite summary on the Here tab (recomputed at most every 2 minutes or 300 m)
+let biteMiniAt = null;
+function renderBiteMini(lat, lon) {
+  if (!Vis.ready()) { $("biteSum").textContent = "no data yet"; return; }
+  if (biteMiniAt && Date.now() - biteMiniAt.t < 120e3 && Math.hypot((lat - biteMiniAt.lat) * 111e3, (lon - biteMiniAt.lon) * 91e3) < 300) return;
+  biteMiniAt = { t: Date.now(), lat, lon };
+  const B = Bite.forecast(lon, lat);
+  if (!B) { $("biteSum").textContent = "too far from the coast"; $("biteMini").innerHTML = ""; return; }
+  const list = B.species.map(sp => ({ sp, r: sp.now || sp.days.find(Boolean) })).filter(x => x.r).sort((a, b) => b.r.score - a.r.score);
+  const best = list[0], dark = !B.species.some(sp => sp.now);
+  $("biteSum").innerHTML = best ? `<span class="pill ${Bite.rating(best.r.score)}">${BLABEL[Bite.rating(best.r.score)]}</span>${esc(best.sp.name)}${dark ? " (next window)" : ""}` : "–";
+  $("biteMini").innerHTML = `<div class="bmini">${list.map(x => `<span>${esc(x.sp.name)} <span class="pill ${Bite.rating(x.r.score)}">${BLABEL[Bite.rating(x.r.score)]}</span></span>`).join("")}</div>
+    <div class="muted" style="margin-bottom:8px">${dark ? "It's dark now, so these are for the next daylight window." : "Conditions right now."} Rules of thumb, not a catch prediction.</div>
+    <button class="btn2 on" id="toPlan">Open the planner</button>`;
+  $("toPlan").onclick = () => { Spot.select(0); showTab("plan"); };
 }
 
 function visLayer() {
@@ -414,7 +434,7 @@ function renderRules() {
   if (!r) return;
   $("regsHead").innerHTML = `<div class="rh-t">${esc(r.label)}</div>
     <div class="rh-s">CDFW summary updated ${esc(r.updated || "?")} · <a href="${safeUrl(r.url)}" target="_blank" rel="noopener noreferrer">View on CDFW</a></div>
-    ${[...new Set(r.notes)].map(n => `<details class="note"><summary><b>Alert:</b> ${esc(n.replace(/^NOTE:\s*/, "").slice(0, 90))}… <u>more</u></summary>${esc(n.replace(/^NOTE:\s*/, ""))}</details>`).join("")}`;
+    ${r.notes.filter((n, i, arr) => arr.findIndex(m => m.slice(0, 70) === n.slice(0, 70)) === i).map(n => `<details class="note"><summary><b>Alert:</b> ${esc(n.replace(/^NOTE:\s*/, "").slice(0, 90))}… <u>more</u></summary>${esc(n.replace(/^NOTE:\s*/, ""))}</details>`).join("")}`;
   const q = ($("regsSearch").value || "").toLowerCase();
   const cards = r.cards.filter(c => !q || (c.title + " " + c.text.join(" ")).toLowerCase().includes(q));
   const pinned = PINNED.map(id => cards.find(c => c.id === id)).filter(Boolean);
@@ -422,11 +442,14 @@ function renderRules() {
   const gfIds = ["rockfish", "lingcod", "cabezon", "greenlings"];
   const card = c => {
     const gf = gfIds.includes(c.id) ? groundfishCard(c.id, cur) : "";
-    const st = { open: "Open", partial: "Partly closed / alert", closed: "Closed" }[c.status] || c.status;
+    const st = { open: "Open", partial: "Alert", closed: "Closed" }[c.status] || c.status;
+    const health = /domoic|quarantine|Public Health|CDPH/i.test(c.text.join(" "));
+    const q = gf ? gf.q : { season: { open: "Open now", partial: "Open, with an alert", closed: "Closed now" }[c.status] || "See details",
+      bag: c.bag || "See details", size: c.size ? (c.size === "none" ? "No minimum" : c.size) : "See details" };
     return `<details class="rcard ${cls(c.status, ["open","partial","closed"])}">
-      <summary><span class="rc-t">${esc(c.title)}</span><span class="pill ${cls(c.status, ["open","partial","closed"])}">${esc(st)}</span>
-        ${!gf && (c.bag || c.size) ? `<div class="rc-q">${c.bag ? `Bag: ${esc(c.bag)}` : ""}${c.bag && c.size ? " · " : ""}${c.size ? `Min size: ${esc(c.size)}` : ""}</div>` : ""}
-        ${gf ? `<div class="rc-q">${gf.quick}</div>` : ""}</summary>
+      <summary><span class="rc-t">${esc(c.title)}</span>
+        <span class="rc-tags">${health ? `<span class="pill violet">Health advisory</span>` : ""}<span class="pill ${cls(c.status, ["open","partial","closed"])}">${esc(st)}</span></span>
+        <div class="rq"><div><span>Season</span>${esc(q.season)}</div><div><span>Daily bag</span>${esc(q.bag)}</div><div><span>Min size</span>${esc(q.size)}</div></div></summary>
       ${gf ? gf.body : c.text.map(t => `<p>${esc(t)}</p>`).join("")}
       <a class="src" href="${safeUrl(c.url)}" target="_blank" rel="noopener noreferrer">CDFW: ${esc(c.title)} ↗</a>
     </details>`;
@@ -454,7 +477,9 @@ function groundfishCard(id, regionKey) {
     <p class="warn">Never keep: ${esc(G.no_retention.join(", "))}.</p>
     ${G.notes.map(n => `<p>${esc(n)}</p>`).join("")}
     <p class="muted">From CDFW's groundfish summary (updated ${esc(G.source_updated)}), checked ${esc(G.checked)}.</p>`;
-  return { quick, body };
+  const q = { season: (now ? ruleTxt(now) : "?") + " (boats)", bag: id === "lingcod" ? "2 fish" : id === "rockfish" ? "10 combined; 1 copper, 2 vermilion, 2 canary" : "10 combined with rockfish",
+              size: id === "lingcod" ? "22 in." : "No minimum" };
+  return { quick, body, q };
 }
 $("regsSearch").oninput = () => renderRules();
 
@@ -517,17 +542,24 @@ function renderInfo() {
 /* ------------------------------------------------------------------ tabs, storage, boot */
 function localStorageGet(k, d) { try { return localStorage.getItem("lc_" + k) ?? d; } catch { return d; } }
 function localStorageSet(k, v) { try { localStorage.setItem("lc_" + k, v); } catch { } }
-document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
-  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + b.dataset.tab));
-  if (b.dataset.tab === "here") setTimeout(() => map.invalidateSize(), 50);
-  if (b.dataset.tab === "bite") renderBite();
-});
+function showTab(name) {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x.dataset.tab === name));
+  document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.id === "tab-" + name));
+  $("gearBtn").classList.toggle("on", name === "info");
+  window.scrollTo(0, 0);
+  if (name === "here") setTimeout(() => map.invalidateSize(), 50);
+  if (name === "plan") { renderPlan(); renderBite(); }
+  if (name === "tides") Tides.render();
+  if (name === "catch") Bag.render();
+  localStorageSet("tab", name === "info" ? "here" : name);
+}
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => showTab(b.dataset.tab));
+$("gearBtn").onclick = () => showTab($("tab-info").classList.contains("active") ? "here" : "info");
 
 (async function boot() {
   await loadData();
   initMap();
-  renderRules(); renderId(); renderInfo(); renderSpots();
+  renderRules(); renderId(); renderInfo(); Settings.render(); Bag.badge();
   startGps();
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => r.update()).catch(() => { });
 })();

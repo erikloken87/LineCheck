@@ -11,12 +11,21 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="css/app.css?v=9">
+<link rel="stylesheet" href="css/app.css?v=10">
 </head>
 <body>
 <header class="top">
-  <div class="brand">LineCheck</div>
-  <div class="gps" id="gpsState">GPS starting…</div>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="12" fill="#1b9e5a" stroke="#fff" stroke-width="2.5"/><path d="M8 14.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    LineCheck
+  </div>
+  <div class="top-r">
+    <div class="gps" id="gpsState">GPS starting…</div>
+    <button class="gear" id="gearBtn" aria-label="Settings and info">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="2.6" fill="currentColor"/><circle cx="15" cy="12" r="2.6" fill="currentColor"/><circle cx="8" cy="17" r="2.6" fill="currentColor"/></svg>
+    </button>
+  </div>
+  <svg class="wave" viewBox="0 0 1200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M0 6 Q 50 0 100 6 T 200 6 T 300 6 T 400 6 T 500 6 T 600 6 T 700 6 T 800 6 T 900 6 T 1000 6 T 1100 6 T 1200 6 V12 H0Z"/></svg>
 </header>
 
 <main>
@@ -24,23 +33,48 @@
   <section id="tab-here" class="tab active">
     <div id="stale" class="stale" hidden></div>
     <div id="banner" class="banner waiting">
-      <div class="b-kicker" id="bKicker">Finding your position</div>
-      <div class="b-title" id="bTitle">Waiting for GPS…</div>
-      <div class="b-sub" id="bSub">Allow location access when your phone asks.</div>
+      <div class="b-main">
+        <div class="b-kicker" id="bKicker">Finding your position</div>
+        <div class="b-title" id="bTitle">Waiting for GPS…</div>
+        <div class="b-sub" id="bSub">Allow location access when your phone asks.</div>
+      </div>
+      <div class="guide" id="guide" hidden>
+        <svg viewBox="0 0 48 48" id="guideArrow"><circle cx="24" cy="24" r="22" fill="rgba(255,255,255,.16)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/><path d="M24 7l9 20h-6v13h-6V27h-6z" fill="#fff"/></svg>
+        <div class="guide-d" id="guideDist"></div>
+        <div class="guide-l" id="guideLbl"></div>
+      </div>
     </div>
+    <div id="wx" class="wx" hidden></div>
+    <div class="panel" id="mpaPanel" hidden></div>
     <div id="pinNote" class="pinnote" hidden>Checking the spot you tapped · <button id="backToGps">Back to my location</button></div>
 
     <div id="map"></div>
 
-    <div class="panel" id="gfPanel">
-      <div class="p-head"><span>Groundfish here today</span><span class="p-area" id="gfArea"></span></div>
+    <details class="panel fold" id="gfFold">
+      <summary><span class="f-t">Groundfish</span><span class="f-s" id="gfSum"></span><span class="chev"></span></summary>
+      <div class="p-area" id="gfArea"></div>
       <div id="gfRows"></div>
       <div class="p-foot" id="gfFoot"></div>
-    </div>
+    </details>
+    <details class="panel fold" id="visFold">
+      <summary><span class="f-t">Visibility</span><span class="f-s" id="visSum"></span><span class="chev"></span></summary>
+      <div id="visPanel"></div>
+    </details>
+    <details class="panel fold" id="biteFold">
+      <summary><span class="f-t">Bite</span><span class="f-s" id="biteSum"></span><span class="chev"></span></summary>
+      <div id="biteMini"></div>
+    </details>
+  </section>
 
-    <div class="panel" id="visPanel"></div>
-    <div class="panel" id="mpaPanel" hidden></div>
-    <div class="panel" id="spotsPanel"></div>
+  <!-- PLAN -->
+  <section id="tab-plan" class="tab">
+    <div id="planBody"></div>
+    <div id="biteBody"></div>
+  </section>
+
+  <!-- TIDES -->
+  <section id="tab-tides" class="tab">
+    <div id="tidesBody"></div>
   </section>
 
   <!-- RULES -->
@@ -51,38 +85,37 @@
     <div id="regsList"></div>
   </section>
 
-  <!-- FISH ID -->
-  <section id="tab-id" class="tab">
+  <!-- CATCH: bag counter + fish ID -->
+  <section id="tab-catch" class="tab">
+    <div id="bagBody"></div>
+    <div class="sec">Fish ID</div>
     <input id="idSearch" class="search" type="search" placeholder="Search fish…">
     <div class="chips" id="idChips"></div>
     <div id="idList"></div>
   </section>
 
-  <!-- BITE -->
-  <section id="tab-bite" class="tab">
-    <div id="biteBody"></div>
-  </section>
-
-  <!-- INFO -->
+  <!-- INFO + SETTINGS (opened from the header button) -->
   <section id="tab-info" class="tab">
+    <div id="settingsBody"></div>
     <div class="info" id="infoBody"></div>
   </section>
 </main>
 
 <nav class="tabs">
-  <button data-tab="here" class="on"><span class="ti">◎</span>Here</button>
-  <button data-tab="rules"><span class="ti">§</span>Rules</button>
-  <button data-tab="bite"><span class="ti">🎣</span>Bite</button>
-  <button data-tab="id"><span class="ti">🐟</span>Fish ID</button>
-  <button data-tab="info"><span class="ti">i</span>Info</button>
+  <button data-tab="here" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" class="fill"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3.500M12 19v3.500M1.500 12H5M19 12h3.500"/></svg>Here</button>
+  <button data-tab="plan"><svg viewBox="0 0 24 24"><rect x="3.500" y="5" width="17" height="15.500" rx="2.500"/><path d="M3.500 10h17M8 2.500v4M16 2.500v4M8.500 15l2.500 2.500 4.500-5"/></svg>Plan</button>
+  <button data-tab="tides"><svg viewBox="0 0 24 24"><path d="M2 9c2.500-3 5-3 7.500 0s5 3 7.500 0 3.500-2.500 5-1M2 16c2.500-3 5-3 7.500 0s5 3 7.500 0 3.500-2.500 5-1"/></svg>Tides</button>
+  <button data-tab="rules"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM15 3v4h4M9 12h7M9 16h7"/></svg>Rules</button>
+  <button data-tab="catch"><svg viewBox="0 0 24 24"><path d="M2 12c3-5 8-6.500 13-4l5-3.500-1.500 5.500L22 12l-3.500 2 1.500 5.500-5-3.500c-5 2.500-10 1-13-4z"/><circle cx="7.500" cy="11" r="1" class="fill"/></svg>Catch</button>
 </nav>
 
 <script src="vendor/leaflet/leaflet.js"></script>
-<script src="vendor/tide-predictor.js?v=9"></script>
-<script src="js/geo.js?v=9"></script>
-<script src="vendor/suncalc.js?v=9"></script>
-<script src="js/vis.js?v=9"></script>
-<script src="js/bite.js?v=9"></script>
-<script src="js/app.js?v=9"></script>
+<script src="vendor/tide-predictor.js?v=10"></script>
+<script src="vendor/suncalc.js?v=10"></script>
+<script src="js/geo.js?v=10"></script>
+<script src="js/vis.js?v=10"></script>
+<script src="js/bite.js?v=10"></script>
+<script src="js/extras.js?v=10"></script>
+<script src="js/app.js?v=10"></script>
 </body>
 </html>

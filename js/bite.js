@@ -132,7 +132,9 @@ const Bite = (() => {
     for (const e of E) if (e.t + H3 > now && !keys.includes(e.L.key)) keys.push(e.L.key);
     const days = keys.slice(0, 3);
     const label = k => k === today ? "Today" : E.find(e => e.L.key === k).L.dow;
-    return { days: days.map(label), species: SPECIES.map(sp => {
+    const meta = days.map(k => { const st = E.filter(e => e.L.key === k && e.day && e.hn != null);
+      return { swell: st.length ? avg(st.map(e => e.hn)) : null, wind: st.length ? Math.max(...st.map(e => e.wind ?? 0)) : null }; });
+    return { days: days.map(label), meta, species: SPECIES.map(sp => {
       const ok = e => sp.id === "crab" ? e.L.hour >= 4 && e.L.hour < 22 : e.day;
       const nowE = E.find(e => now >= e.t && now < e.t + H3);
       const out = { ...sp, now: nowE && ok(nowE) ? score(sp.id, nowE) : null, days: [] };

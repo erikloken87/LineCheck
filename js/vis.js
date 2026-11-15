@@ -91,6 +91,12 @@ const Vis = (() => {
     return { station: t.name, dist: s.d, level: lvl, rising, next: next.map(e => ({ high: e.high, ft: e.level * FT, time: e.time })), prev };
   }
 
+  function predictor(lon, lat) {
+    const s = nearest(st.tides, lon, lat, t => [t.lon, t.lat], 80);
+    if (!s || !window.TidePredictor) return null;
+    const t = s.it;
+    return { id: t.id, name: t.name, dist: s.d, p: st.predictors[t.id] || (st.predictors[t.id] = TidePredictor.createTidePredictor(t.hc, { offset: t.offset })) };
+  }
   // 8 days of tide heights (ft) at 30-minute steps for the nearest station, for the bite score
   function tideTimeline(lon, lat) {
     const s = nearest(st.tides, lon, lat, t => [t.lon, t.lat], 80);
@@ -268,5 +274,5 @@ const Vis = (() => {
   }
   window.addEventListener("online", flushQueue);
 
-  return { init, estimate, outlook, tideAt, tideTimeline, series, spots, saveSpot, removeSpot, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
+  return { init, estimate, outlook, tideAt, tideTimeline, series, predictor, spots, saveSpot, removeSpot, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
 })();

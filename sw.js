@@ -1,10 +1,10 @@
 /* Offline support: app shell + data precached; data refreshed in the background; map tiles cached as viewed. */
-const VERSION = "lc-v9";
-const SHELL = ["./", "index.html", "css/app.css?v=9", "js/app.js?v=9", "js/geo.js?v=9", "js/vis.js?v=9", "js/bite.js?v=9", "vendor/suncalc.js?v=9", "vendor/tide-predictor.js?v=9", "manifest.webmanifest",
+const VERSION = "lc-v10";
+const SHELL = ["./", "index.html", "css/app.css?v=10", "js/app.js?v=10", "js/geo.js?v=10", "js/vis.js?v=10", "js/bite.js?v=10", "js/extras.js?v=10", "vendor/suncalc.js?v=10", "vendor/tide-predictor.js?v=10", "manifest.webmanifest",
   "vendor/leaflet/leaflet.js", "vendor/leaflet/leaflet.css", "vendor/leaflet/images/marker-icon.png",
   "vendor/leaflet/images/marker-icon-2x.png", "vendor/leaflet/images/marker-shadow.png", "vendor/leaflet/images/layers.png",
   "icons/icon-192.png", "icons/icon-512.png"];
-const DATA = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config"].map(f => `data/app/${f}.json`);
+const DATA = ["mpa", "lines", "exclusion", "regs", "groundfish", "meta", "coast", "sfbay", "species", "conditions", "tide_stations", "reports_config", "piers"].map(f => `data/app/${f}.json`);
 const TILE_HOSTS = ["tile.openstreetmap.org", "server.arcgisonline.com"];
 const TILE_MAX = 6000;
 

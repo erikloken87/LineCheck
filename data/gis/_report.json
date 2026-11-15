@@ -1,0 +1,305 @@
+{
+ "fetched_at": "2026-11-15T18:26:11.481328Z",
+ "datasets": {
+  "mpa": {
+   "code": "ds582",
+   "candidates": [
+    [
+     "California_Marine_Protected_Areas_[ds582]",
+     "Feature Service",
+     "https://services1.arcgis.com/0j6vZbECadDEXdAS/arcgis/rest/services/California_Marine_Protected_Areas_[ds582]/FeatureServer"
+    ],
+    [
+     "California Marine Protected Areas [ds582]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
+    ],
+    [
+     "California Marine Protected Areas [ds582]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
+    ]
+   ],
+   "title": "California_Marine_Protected_Areas_[ds582]",
+   "item_id": "da1b200471924f11b17878a8e435f93c",
+   "layer": "https://services1.arcgis.com/0j6vZbECadDEXdAS/arcgis/rest/services/California_Marine_Protected_Areas_[ds582]/FeatureServer/0",
+   "layer_name": "California_Marine_Protected_Areas_[ds582]",
+   "fields": [
+    "FID",
+    "OBJECTID",
+    "NAME",
+    "CCR",
+    "Area_sq_mi",
+    "Study_Regi",
+    "FULLNAME",
+    "Type",
+    "CCR_Int",
+    "SHORTNAME",
+    "Acres",
+    "Hectares",
+    "Shape__Are",
+    "Shape__Len",
+    "Shape__Area",
+    "Shape__Length",
+    "sq_miles"
+   ],
+   "count": 155,
+   "modified": 1782170420000,
+   "sample": [
+    {
+     "FID": 1,
+     "OBJECTID": 1,
+     "NAME": "Pyramid Point SMCA",
+     "CCR": "Section 632 (b) (1)",
+     "Area_sq_mi": 13.9935561047,
+     "Study_Regi": "NCSR",
+     "FULLNAME": "Pyramid Point State Marine Conservation Area",
+     "Type": "SMCA",
+     "CCR_Int": 1,
+     "SHORTNAME": "Pyramid Point",
+     "Acres": 8955.91152252,
+     "Hectares": 3624.32880634,
+     "Shape__Are": 65634640.4609375,
+     "Shape__Len": 36841.2099563691,
+     "Shape__Area": 65634640.4375,
+     "Shape__Length": 36841.209956365026,
+     "sq_miles": 13.993801712817403
+    },
+    {
+     "FID": 2,
+     "OBJECTID": 2,
+     "NAME": "Point St. George Reef Offshore SMCA",
+     "CCR": "Section 632 (b) (2)",
+     "Area_sq_mi": 9.52324021771,
+     "Study_Regi": "NCSR",
+     "FULLNAME": "Point St. George Reef Offshore State Marine Conservation Area",
+     "Type": "SMCA",
+     "CCR_Int": 2,
+     "SHORTNAME": "Point St. George Reef Offshore",
+     "Acres": 6094.8979773,
+     "Hectares": 2466.51770233,
+     "Shape__Are": 44473990.09375,
+     "Shape__Len": 25879.5816741591,
+     "Shape__Area": 44473990.09375,
+     "Shape__Length": 25879.581674162717,
+     "sq_miles": 9.523359408311231
+    },
+    {
+     "FID": 3,
+     "OBJECTID": 3,
+     "NAME": "Southwest Seal Rock Special Closure",
+     "CCR": "Section 632 (b) (3)",
+     "Area_sq_mi": 0.0223448156141,
+     "Study_Regi": "NCSR",
+     "FULLNAME": "Southwest Seal Rock Special Closure",
+     "Type": "Special Closure",
+     "CCR_Int": 3,
+     "SHORTNAME": "Southwest Seal Rock",
+     "Acres": 14.3007388637,
+     "Hectares": 5.78730369155,
+     "Shape__Are": 104261.203125,
+     "Shape__Len": 1638.29610790956,
+     "Shape__Area": 104261.2421875,
+     "Shape__Length": 1638.2961079071756,
+     "sq_miles": 0.02234481843916899
+    }
+   ]
+  },
+  "rca": {
+   "code": "ds3144",
+   "candidates": [
+    [
+     "Rockfish Conservation Area - R7 - CDFW [ds3144]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3144_fnu/FeatureServer"
+    ]
+   ],
+   "title": "Rockfish Conservation Area - R7 - CDFW [ds3144]",
+   "item_id": "e5d2b35828f74fef8c8f59a156f19685",
+   "layer": "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3144_fnu/FeatureServer/0",
+   "layer_name": "Rockfish Conservation Area _ R7 _ CDFW _ ds3144",
+   "fields": [
+    "OBJECTID",
+    "area_name",
+    "START_Fath",
+    "Region",
+    "Shape__Length"
+   ],
+   "count": 71,
+   "modified": 1735953009000,
+   "sample": [
+    {
+     "OBJECTID": 1,
+     "area_name": "150-fm (274-m) Contour - Coastwide",
+     "START_Fath": 150,
+     "Region": "Northern",
+     "Shape__Length": 369673.38607218966
+    },
+    {
+     "OBJECTID": 2,
+     "area_name": "150-fm (274-m) Contour - Coastwide",
+     "START_Fath": 150,
+     "Region": "Southern",
+     "Shape__Length": 847543.189325592
+    },
+    {
+     "OBJECTID": 3,
+     "area_name": "150-fm (274-m) Contour - Coastwide",
+     "START_Fath": 150,
+     "Region": "Central - North 36\u00b0",
+     "Shape__Length": 304380.6987738459
+    }
+   ]
+  },
+  "gf_areas": {
+   "code": "ds3143",
+   "candidates": [
+    [
+     "Groundfish Recreational Boundaries - R7 - CDFW [ds3143]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3143_fpu/FeatureServer"
+    ]
+   ],
+   "title": "Groundfish Recreational Boundaries - R7 - CDFW [ds3143]",
+   "item_id": "b94080d8e42e444c938262f2758e8620",
+   "layer": "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3143_fpu/FeatureServer/0",
+   "layer_name": "Groundfish Recreational Boundaries _ R7 _ CDFW _ ds3143",
+   "fields": [
+    "OBJECTID",
+    "Region",
+    "Detail",
+    "Shape__Area",
+    "Shape__Length"
+   ],
+   "count": 6,
+   "modified": 1762975000000,
+   "sample": [
+    {
+     "OBJECTID": 1,
+     "Region": "Northern",
+     "Detail": "42\u00b000 N. Latitude (Oregon Border) to 40\u00b010 N. Latitude (near Cape Mendocino in Humboldt County)",
+     "Shape__Area": 138582213321.33594,
+     "Shape__Length": 2147677.3760388363
+    },
+    {
+     "OBJECTID": 2,
+     "Region": "Southern",
+     "Detail": "34\u00b027 N. Latitude (Point Conception, Santa Barbara County) to the U.S. - Mexico Border",
+     "Shape__Area": 307027862033,
+     "Shape__Length": 3793953.9275892614
+    },
+    {
+     "OBJECTID": 3,
+     "Region": "San Francisco",
+     "Detail": "38\u00b057.5 N. Latitude (Point Arena in Mendocino County) to 37\u00b011 N. Latitude (Pigeon Point in San Mateo County)",
+     "Shape__Area": 137750333514.84375,
+     "Shape__Length": 2049754.396198165
+    }
+   ]
+  },
+  "gf_exclusion": {
+   "code": "ds3164",
+   "candidates": [
+    [
+     "Groundfish Exclusion Areas - R7 - CDFW [ds3164]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3164_fpu/FeatureServer"
+    ]
+   ],
+   "title": "Groundfish Exclusion Areas - R7 - CDFW [ds3164]",
+   "item_id": "ea7f077dc3b9495793f04a8dcf90b42c",
+   "layer": "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3164_fpu/FeatureServer/0",
+   "layer_name": "Groundfish Exclusion Areas _ R7 _ CDFW _ ds3164",
+   "fields": [
+    "OBJECTID",
+    "ID",
+    "AreaName",
+    "Shape__Area",
+    "Shape__Length"
+   ],
+   "count": 8,
+   "modified": 1782335791000,
+   "sample": [
+    {
+     "OBJECTID": 1,
+     "ID": 1,
+     "AreaName": "Northeast Bank",
+     "Shape__Area": 162687584.609375,
+     "Shape__Length": 52514.11809999682
+    },
+    {
+     "OBJECTID": 2,
+     "ID": 2,
+     "AreaName": "43-Fathom Spot",
+     "Shape__Area": 238842769.83203125,
+     "Shape__Length": 62545.23707602025
+    },
+    {
+     "OBJECTID": 3,
+     "ID": 3,
+     "AreaName": "Seamount 109",
+     "Shape__Area": 225330060.5390625,
+     "Shape__Length": 73871.2434430381
+    }
+   ]
+  }
+ },
+ "pages": {
+  "ocean-index": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean",
+   "bytes": 71865
+  },
+  "groundfish-summary": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary",
+   "bytes": 46381
+  },
+  "inseason": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason",
+   "bytes": 36997
+  },
+  "ccr-632": {
+   "url": "https://www.law.cornell.edu/regulations/california/14-CCR-632",
+   "bytes": 281822
+  },
+  "mpa-network": {
+   "url": "https://wildlife.ca.gov/Conservation/Marine/MPAs/Network",
+   "bytes": 51308
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_Central": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Central",
+   "bytes": 88763
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_Mendocino": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Mendocino",
+   "bytes": 86704
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_Northern": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Northern",
+   "bytes": 85496
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_SF-Bay": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/SF-Bay",
+   "bytes": 85060
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_San-Francisco": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/San-Francisco",
+   "bytes": 86688
+  },
+  "Fishing_Ocean_Regulations_Fishing-Map_Southern": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Southern",
+   "bytes": 82876
+  },
+  "Fishing_Ocean_Regulations_Groundfish-Summary": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary",
+   "bytes": 46381
+  },
+  "Fishing_Ocean_Regulations_Inseason": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason",
+   "bytes": 36997
+  },
+  "Fishing_Ocean_Regulations_Salmon": {
+   "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Salmon",
+   "bytes": 33470
+  }
+ }
+}

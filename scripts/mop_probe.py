@@ -19,14 +19,19 @@ out["prefixes"] = collections.Counter((re.match(r"[A-Z]+", n) or [None])[0] for 
 sl = [n for n in names if n.startswith("SL") and "nowcast" in n]
 out["sl_nowcast"] = len(sl)
 def num(txt, var):
-    m = re.search(var + r"[^\n]*\n([-\d.eE+, ]+)", txt)
-    return [float(x) for x in m.group(1).split(",")] if m else None
+    data = txt.split("-----")[-1] if "-----" in txt else txt
+    m = re.search(var.replace(r"\[", "") + r"(?:\[\d+\])?\s*[,\n]\s*([-\d.eE+, \n]*)", data)
+    if not m:
+        return None
+    vals = re.findall(r"-?\d+\.?\d*(?:[eE][-+]?\d+)?", m.group(1).split("\n\n")[0])
+    return [float(v) for v in vals] or None
 if sl:
     D = B + "/dodsC/cdip/model/MOP_alongshore/"
     dds = get(D + sl[0] + ".dds"); out["dds"] = dds.text[:1500] if dds else None
     pts = []
     for n in sl[::12]:
         a = get(D + n + ".ascii?metaLatitude,metaLongitude")
+        if a and "raw_latlon" not in out: out["raw_latlon"] = a.text[:500]
         if a:
             la, lo = num(a.text, "metaLatitude"), num(a.text, "metaLongitude")
             if la and lo: pts.append((n, la[0], lo[0]))

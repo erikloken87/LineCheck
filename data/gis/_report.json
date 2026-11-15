@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-15T18:51:00.389373Z",
+ "fetched_at": "2026-11-15T19:14:18.805232Z",
  "datasets": {
   "mpa": {
    "code": "ds582",
@@ -13,11 +13,6 @@
      "California Marine Protected Areas [ds582]",
      "Feature Service",
      "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds582_fpu/FeatureServer"
-    ],
-    [
-     "California_Marine_Protected_Areas_[ds582]",
-     "Feature Service",
-     "https://services1.arcgis.com/0j6vZbECadDEXdAS/arcgis/rest/services/California_Marine_Protected_Areas_[ds582]/FeatureServer"
     ]
    ],
    "title": "California Marine Protected Areas [ds582]",

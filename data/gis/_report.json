@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-15T19:14:18.805232Z",
+ "fetched_at": "2026-11-15T21:45:40.387632Z",
  "datasets": {
   "mpa": {
    "code": "ds582",
@@ -219,6 +219,61 @@
      "AreaName": "Seamount 109",
      "Shape__Area": 225330060.5390625,
      "Shape__Length": 73871.2434430381
+    }
+   ]
+  },
+  "piers": {
+   "code": "ds3090",
+   "candidates": [
+    [
+     "Public Piers and Jetties - R7 - CDFW [ds3090]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3090_fmu/FeatureServer"
+    ],
+    [
+     "Public Piers and Jetties - R7 - CDFW [ds3090]",
+     "Feature Service",
+     "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3090_fmu/FeatureServer"
+    ]
+   ],
+   "title": "Public Piers and Jetties - R7 - CDFW [ds3090]",
+   "item_id": "397f7591998d45b18bc2e2007b1e8d2a",
+   "layer": "https://services2.arcgis.com/Uq9r85Potqm3MfRV/arcgis/rest/services/biosds3090_fmu/FeatureServer/0",
+   "layer_name": "Public Piers and Jetties _ R7 _ CDFW _ ds3090",
+   "fields": [
+    "OBJECTID",
+    "pier",
+    "county",
+    "lat_ddm",
+    "long_ddm",
+    "notes"
+   ],
+   "count": 129,
+   "modified": 1788974371000,
+   "sample": [
+    {
+     "OBJECTID": 1,
+     "pier": "Adorni Center Pier",
+     "county": "Humboldt",
+     "lat_ddm": "40\u00b0 48.37' N",
+     "long_ddm": "124\u00b0 9.678' W",
+     "notes": "None"
+    },
+    {
+     "OBJECTID": 2,
+     "pier": "Alameda Rock Wall",
+     "county": "Alameda",
+     "lat_ddm": "37\u00b0 46.122' N",
+     "long_ddm": "122\u00b0 17.473' W",
+     "notes": "None"
+    },
+    {
+     "OBJECTID": 3,
+     "pier": "Alamitos Bay (72nd Street) Jetty West",
+     "county": "Los Angeles",
+     "lat_ddm": "33\u00b0 44.611' N",
+     "long_ddm": "118\u00b0 7.074' W",
+     "notes": "On the adjacent rock wall touching land a fishing license is required"
     }
    ]
   }

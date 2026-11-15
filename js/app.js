@@ -170,7 +170,10 @@ function initMap() {
   map = L.map("map", { zoomControl: false, attributionControl: true, preferCanvas: true }).setView([35.25, -120.9], 10);
   L.control.zoom({ position: "bottomright" }).addTo(map);
   // Offline backdrop: built-in coastline under any tiles
-  if (D.coast) L.geoJSON(D.coast, { interactive: false, style: { color: "#b9a77f", weight: 1, fillColor: "#efe6cf", fillOpacity: 1 } }).addTo(map);
+  // Offline backdrop sits *under* the map tiles (its own pane below the tile pane), so it only
+  // shows through where no tile is available, e.g. offline in an area you haven't viewed before.
+  map.createPane("coast").style.zIndex = 150;
+  if (D.coast) L.geoJSON(D.coast, { pane: "coast", interactive: false, style: { stroke: false, fillColor: "#efe6cf", fillOpacity: 1 } }).addTo(map);
   const streets = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap" });
   const sat = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { maxZoom: 18, attribution: "Imagery © Esri" });
   const ocean = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}", { maxZoom: 13, attribution: "© Esri, GEBCO, NOAA" });

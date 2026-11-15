@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3b5c">
+<title>LineCheck</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">LineCheck</div>
+  <div class="gps" id="gpsState">GPS starting…</div>
+</header>
+
+<main>
+  <!-- HERE -->
+  <section id="tab-here" class="tab active">
+    <div id="stale" class="stale" hidden></div>
+    <div id="banner" class="banner waiting">
+      <div class="b-kicker" id="bKicker">Finding your position</div>
+      <div class="b-title" id="bTitle">Waiting for GPS…</div>
+      <div class="b-sub" id="bSub">Allow location access when your phone asks.</div>
+    </div>
+    <div id="pinNote" class="pinnote" hidden>Checking the spot you tapped · <button id="backToGps">Back to my location</button></div>
+
+    <div id="map"></div>
+
+    <div class="panel" id="gfPanel">
+      <div class="p-head"><span>Groundfish here today</span><span class="p-area" id="gfArea"></span></div>
+      <div id="gfRows"></div>
+      <div class="p-foot" id="gfFoot"></div>
+    </div>
+
+    <div class="panel" id="mpaPanel" hidden></div>
+  </section>
+
+  <!-- RULES -->
+  <section id="tab-rules" class="tab">
+    <div class="chips" id="regionChips"></div>
+    <div id="regsHead" class="regs-head"></div>
+    <input id="regsSearch" class="search" type="search" placeholder="Search species…">
+    <div id="regsList"></div>
+  </section>
+
+  <!-- FISH ID -->
+  <section id="tab-id" class="tab">
+    <input id="idSearch" class="search" type="search" placeholder="Search fish…">
+    <div class="chips" id="idChips"></div>
+    <div id="idList"></div>
+  </section>
+
+  <!-- INFO -->
+  <section id="tab-info" class="tab">
+    <div class="info" id="infoBody"></div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="here" class="on"><span class="ti">◎</span>Here</button>
+  <button data-tab="rules"><span class="ti">§</span>Rules</button>
+  <button data-tab="id"><span class="ti">🐟</span>Fish ID</button>
+  <button data-tab="info"><span class="ti">i</span>Info</button>
+</nav>
+
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/geo.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -60,7 +60,8 @@ def find_service(code):
             continue
         items = r.json().get("results", [])
         hits = [i for i in items if f"[{code}]" in (i.get("title") or "") and i.get("url")]
-        hits.sort(key=lambda i: ("Feature Service" != i.get("type"), "_wm" in (i.get("name") or ""), -i.get("modified", 0)))
+        # Prefer CDFW's own BIOS org, then newest
+        hits.sort(key=lambda i: ("Uq9r85Potqm3MfRV" not in i.get("url", ""), "Feature Service" != i.get("type"), -i.get("modified", 0)))
         if hits:
             return hits[0], [(i["title"], i.get("type"), i.get("url")) for i in hits[:8]]
     return None, []
@@ -152,8 +153,20 @@ for url in sorted(links):
 ps = os.path.join(ROOT, "data", "photo_sources.json")
 if os.path.exists(ps):
     for p in json.load(open(ps)):
-        if p.get("page"):
-            save_page("photo_" + p["id"], p["page"])
+        if not p.get("page"):
+            continue
+        html = save_page("photo_" + p["id"], p["page"])
+        if not html:
+            continue
+        m = re.search(r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"', html) or \
+            re.search(r'<meta[^>]+content="([^"]+)"[^>]+property="og:image"', html)
+        if m:
+            img = get(urljoin(p["page"], m.group(1)))
+            if img and img.headers.get("content-type", "").startswith("image"):
+                os.makedirs(os.path.join(ROOT, "raw", "photos"), exist_ok=True)
+                with open(os.path.join(ROOT, "raw", "photos", p["id"] + ".img"), "wb") as fh:
+                    fh.write(img.content)
+                report["pages"]["photo_" + p["id"]]["image"] = m.group(1)
 
 with open(manifest_path, "w") as fh:
     json.dump(manifest, fh, indent=1, sort_keys=True)

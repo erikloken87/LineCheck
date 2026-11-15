@@ -1,0 +1,44 @@
+{
+  "checked": "2026-11-15",
+  "source_updated": "June 23, 2026",
+  "valid_through": "2026-12-31",
+  "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary",
+  "no_retention": ["Bronzespotted rockfish", "Cowcod", "Quillback rockfish", "Yelloweye rockfish"],
+  "bag": [
+    {"species": "RCG complex (all rockfish, cabezon, greenlings)", "bag": "10 fish in combination", "size": "No minimum size"},
+    {"species": "Copper rockfish", "bag": "1 fish (within the 10)", "size": "No minimum size"},
+    {"species": "Vermilion/sunset rockfish", "bag": "2 fish combined (4 in the Northern area)", "size": "No minimum size"},
+    {"species": "Canary rockfish", "bag": "2 fish", "size": "No minimum size"},
+    {"species": "Lingcod", "bag": "2 fish", "size": "22 in. total length"}
+  ],
+  "notes": [
+    "Shore-based anglers (beaches, piers, jetties, docks) and spear divers are exempt from groundfish seasons and depth limits. The no-retention species are still off limits.",
+    "A descending device is required aboard any boat fishing for groundfish.",
+    "Fillets must have the entire skin attached; lingcod fillets at least 14 in."
+  ],
+  "groups": {
+    "nearshore": "Nearshore rockfish, cabezon, greenlings",
+    "shelf": "Shelf & slope rockfish, lingcod"
+  },
+  "areas": [
+    {"key": "northern", "name": "Northern", "south": 40.16667, "north": 42.0,
+     "nearshore": [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}],
+     "shelf":     [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}]},
+    {"key": "mendocino", "name": "Mendocino", "south": 38.95833, "north": 40.16667,
+     "nearshore": [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}],
+     "shelf":     [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}]},
+    {"key": "sanfrancisco", "name": "San Francisco", "south": 37.18333, "north": 38.95833,
+     "note": "Cordell Bank: all groundfish fishing is prohibited.",
+     "nearshore": [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}],
+     "shelf":     [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}]},
+    {"key": "central", "name": "Central", "south": 34.45, "north": 37.18333,
+     "nearshore": [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}],
+     "shelf":     [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "12-31", "rule": "all"}]},
+    {"key": "southern", "name": "Southern", "south": 32.5, "north": 34.45,
+     "note": "Eight Groundfish Exclusion Areas restrict fishing (shown on the map).",
+     "nearshore": [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "06-30", "rule": "all"},
+                   {"from": "07-01", "to": "09-30", "rule": "inshore", "fm": 50}, {"from": "10-01", "to": "12-31", "rule": "closed"}],
+     "shelf":     [{"from": "01-01", "to": "03-31", "rule": "closed"}, {"from": "04-01", "to": "06-30", "rule": "all"},
+                   {"from": "07-01", "to": "09-30", "rule": "inshore", "fm": 50}, {"from": "10-01", "to": "12-31", "rule": "offshore", "fm": 50}]}
+  ]
+}

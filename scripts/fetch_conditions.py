@@ -266,6 +266,55 @@ if cfg.get("csv_url"):
     log["reports"] = len(reports)
 print("reports:", len(reports))
 
+# ------------------------------------------------------------------ NWS marine and surf warnings
+MARINE = {"Small Craft Advisory", "Gale Warning", "Gale Watch", "Storm Warning", "Storm Watch", "Hazardous Seas Warning",
+          "Hazardous Seas Watch", "Hurricane Force Wind Warning", "Dense Fog Advisory", "Special Marine Warning",
+          "Marine Weather Statement", "Brisk Wind Advisory", "Small Craft Advisory For Hazardous Seas"}
+SHORE = {"High Surf Advisory", "High Surf Warning", "Beach Hazards Statement", "Coastal Flood Advisory", "Coastal Flood Warning",
+         "Rip Current Statement", "Tsunami Warning", "Tsunami Advisory", "Tsunami Watch"}
+alerts, zones, zone_urls = [], {}, {}
+try:
+    from shapely.geometry import shape, mapping
+    for area, want, prefix in (("PZ", MARINE | SHORE, "PZZ"), ("CA", SHORE, "CAZ")):
+        r = get("https://api.weather.gov/alerts/active", params={"area": area}, headers={"Accept": "application/geo+json"})
+        if not r:
+            continue
+        for f in r.json().get("features", []):
+            pr = f.get("properties", {})
+            if pr.get("event") not in want or pr.get("status") != "Actual":
+                continue
+            ids = []
+            for u in pr.get("affectedZones", []):
+                zid = u.rstrip("/").split("/")[-1]
+                if zid.startswith(prefix):
+                    ids.append(zid); zone_urls[zid] = u
+            if ids:
+                alerts.append({"event": pr["event"], "headline": (pr.get("headline") or "")[:300], "severity": pr.get("severity"),
+                               "onset": pr.get("onset") or pr.get("effective"), "ends": pr.get("ends") or pr.get("expires"),
+                               "desc": re.sub(r"\s+", " ", pr.get("description") or "")[:700], "zones": ids})
+    def rnd(c):
+        return [round(c[0], 3), round(c[1], 3)] if isinstance(c[0], (int, float)) else [rnd(x) for x in c]
+    for zid, u in zone_urls.items():
+        z = get(u, headers={"Accept": "application/geo+json"})
+        if not z or not z.json().get("geometry"):
+            continue
+        g = shape(z.json()["geometry"])
+        if not g.is_valid:
+            g = g.buffer(0)
+        c = g.centroid
+        if not (32 <= c.y <= 42.6 and -127.5 <= c.x <= -116.5):
+            continue
+        m = mapping(g.simplify(0.01))
+        zones[zid] = {"name": z.json().get("properties", {}).get("name"), "geom": {"type": m["type"], "coordinates": rnd(m["coordinates"])}}
+        time.sleep(0.2)
+    alerts = [dict(a, zones=[z for z in a["zones"] if z in zones]) for a in alerts]
+    alerts = [a for a in alerts if a["zones"]]
+    log["alerts"] = len(alerts)
+except Exception as e:
+    log["alerts_error"] = repr(e)
+    alerts, zones = None, None      # None = unknown, so the app says "couldn't check" rather than "no warnings"
+print("alerts:", log.get("alerts"), log.get("alerts_error"), [a["event"] for a in (alerts or [])][:8])
+
 bias = []
 for (blon, blat), ratios in bias_obs.items():
     r = max(0.5, min(2.0, statistics.median(ratios)))
@@ -273,7 +322,7 @@ for (blon, blat), ratios in bias_obs.items():
     bias.append([round(blon, 2), round(blat, 2), round(math.exp(math.log(r) * n / (n + 3)), 2), n])
 
 out = {"updated": now.isoformat(timespec="minutes"), "sat": sat, "sat_source": sat_meta, "points": points,
-       "reports": reports, "bias": bias, "log": log}
+       "reports": reports, "bias": bias, "alerts": alerts, "zones": zones, "log": log}
 if not sat and not log["points_with_waves"]:
     print("No usable data this run; keeping previous file")
     sys.exit(0)

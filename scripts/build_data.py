@@ -150,6 +150,22 @@ areas = load(os.path.join(GIS, "gf_areas.geojson"))
 sfbay = [f for f in areas["features"] if f["properties"]["Region"] == "SF Bay"]
 dump("sfbay.json", simplify(sfbay[0]["geometry"], 0.002) if sfbay else None)
 
+# ---------------------------------------------------------------- Public piers and jetties
+pp = os.path.join(GIS, "piers.geojson")
+if os.path.exists(pp):
+    piers = []
+    for f in load(pp)["features"]:
+        try:
+            c = shape(f["geometry"]).centroid
+        except Exception:
+            continue
+        pr = f.get("properties") or {}
+        nm = next((v for k, v in pr.items() if "name" in k.lower() and isinstance(v, str) and v.strip()), None) or \
+             next((v for v in pr.values() if isinstance(v, str) and v.strip()), "Public pier")
+        piers.append([round(c.x, 5), round(c.y, 5), clean(nm)[:60]])
+    dump("piers.json", piers)
+    meta["sources"]["piers"] = len(piers)
+
 # ---------------------------------------------------------------- Regional regulations
 REGIONS = [  # key, CDFW page, name, south lat, north lat
     ("northern", "Northern", "Oregon border to Cape Mendocino (40°10′)", 40 + 10 / 60, 42.0),

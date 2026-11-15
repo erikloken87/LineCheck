@@ -21,13 +21,14 @@ os.makedirs(RAW, exist_ok=True)
 
 CDFW_ORG = "/Uq9r85Potqm3MfRV/"  # services2.arcgis.com/<org> used by CDFW's BIOS datasets
 # Sanity bounds: if a download falls outside these, keep last week's data instead of publishing it.
-EXPECT = {"mpa": (140, 220), "rca": (40, 150), "gf_areas": (5, 8), "gf_exclusion": (1, 20)}
+EXPECT = {"mpa": (140, 220), "rca": (40, 150), "gf_areas": (5, 8), "gf_exclusion": (1, 20), "piers": (10, 3000)}
 
 DATASETS = {
     "mpa": "ds582",            # California Marine Protected Areas
     "rca": "ds3144",           # Rockfish Conservation Area lines
     "gf_areas": "ds3143",      # Groundfish recreational management area boundaries
     "gf_exclusion": "ds3164",  # Groundfish exclusion areas (southern CA)
+    "piers": "ds3090",         # Public piers and jetties (no license needed to fish from these)
 }
 
 PAGES = {

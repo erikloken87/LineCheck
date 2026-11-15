@@ -232,6 +232,44 @@ if os.path.exists(man_gf):
     meta["sources"]["groundfish_rules_checked"] = load(man_gf).get("checked")
     meta["sources"]["groundfish_rules_source_date"] = load(man_gf).get("source_updated")
 
+# ---------------------------------------------------------------- Species photos (US federal / public domain only)
+sp_out = os.path.join(OUT, "species.json")
+if os.path.exists(sp_out):
+    try:
+        from PIL import Image
+    except ImportError:
+        Image = None
+    FED = re.compile(r"NOAA|NMFS|National Marine Sanctuar|National Park Service|Fish and Wildlife Service|USGS", re.I)
+    pdir = os.path.join(ROOT, "raw", "photos")
+    photos_dir = os.path.join(ROOT, "photos")
+    os.makedirs(photos_dir, exist_ok=True)
+    commons = load(os.path.join(pdir, "commons.json")) if os.path.exists(os.path.join(pdir, "commons.json")) else {}
+    spj = load(sp_out)
+    used = 0
+    for sp in spj["species"]:
+        src, credit = None, None
+        noaa_img, noaa_page = os.path.join(pdir, sp["id"] + ".img"), os.path.join(RAW, f"photo_{sp['id']}.html")
+        if os.path.exists(noaa_img) and os.path.exists(noaa_page):
+            t = clean(BeautifulSoup(open(noaa_page).read(), "html.parser").get_text(" "))
+            m = re.search(r"Credit: (.{0,90}?)(?= [A-Z][a-z]+ [a-z]|$)", t)
+            if m and FED.search(m.group(1)):
+                cr = re.split(r"\.| Credit|\s(?=" + re.escape(sp["name"].split()[0]) + ")", m.group(1))[0].strip()
+                src, credit = noaa_img, cr if cr.startswith("NOAA") else cr + ", via NOAA Fisheries"
+        if not src and sp["id"] in commons and os.path.exists(os.path.join(pdir, f"c_{sp['id']}.img")):
+            c = commons[sp["id"]]
+            src, credit = os.path.join(pdir, f"c_{sp['id']}.img"), f"{c.get('artist') or c.get('credit')}, public domain (Wikimedia Commons)"
+        if src and Image:
+            try:
+                im = Image.open(src).convert("RGB")
+                im.thumbnail((900, 900))
+                im.save(os.path.join(photos_dir, sp["id"] + ".jpg"), quality=78, optimize=True)
+                sp["photo"], sp["photo_credit"] = f"photos/{sp['id']}.jpg", credit
+                used += 1
+            except Exception as e:
+                print("photo failed", sp["id"], e)
+    dump("species.json", spj)
+    meta["sources"]["photos"] = used
+
 dump("meta.json", meta)
 print(json.dumps({k: (v if k != "mpa" else {kk: vv for kk, vv in v.items() if kk != "unmatched_regs"}) for k, v in meta["sources"].items()}, indent=1))
 print("unmatched MPA regs:", unmatched)

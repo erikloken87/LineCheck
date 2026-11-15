@@ -168,6 +168,42 @@ if os.path.exists(ps):
                     fh.write(img.content)
                 report["pages"]["photo_" + p["id"]]["image"] = m.group(1)
 
+# Public-domain photos from Wikimedia Commons (US federal works only) for species without a NOAA page photo
+FED = re.compile(r"NOAA|NMFS|National Oceanic|National Marine Fisheries|National Marine Sanctuar|National Park Service|NPS|Fish and Wildlife Service|USFWS|USGS|Geological Survey", re.I)
+credits_path = os.path.join(ROOT, "raw", "photos", "commons.json")
+os.makedirs(os.path.dirname(credits_path), exist_ok=True)
+commons = {}
+sp_path = os.path.join(ROOT, "data", "manual", "species.json")
+if os.path.exists(sp_path):
+    for sp in json.load(open(sp_path))["species"]:
+        sci = sp["sci"].split("/")[0].strip()
+        r = get("https://commons.wikimedia.org/w/api.php", params={
+            "action": "query", "generator": "search", "gsrsearch": f'"{sci}" filetype:bitmap', "gsrnamespace": 6, "gsrlimit": 25,
+            "prop": "imageinfo", "iiprop": "url|extmetadata|size", "iiurlwidth": 900, "format": "json"})
+        if not r:
+            continue
+        pages = sorted((r.json().get("query") or {}).get("pages", {}).values(), key=lambda p: p.get("index", 99))
+        for pg in pages:
+            ii = (pg.get("imageinfo") or [{}])[0]
+            md = ii.get("extmetadata") or {}
+            lic = (md.get("LicenseShortName") or {}).get("value", "")
+            who = " ".join(re.sub("<[^>]+>", " ", (md.get(k) or {}).get("value", "")) for k in ("Artist", "Credit", "UsageTerms", "ImageDescription"))
+            if "public domain" not in lic.lower() or not FED.search(who) or ii.get("width", 0) < 400:
+                continue
+            img = get(ii.get("thumburl") or ii["url"])
+            if not img:
+                continue
+            with open(os.path.join(ROOT, "raw", "photos", f"c_{sp['id']}.img"), "wb") as fh:
+                fh.write(img.content)
+            artist = clean_html = re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", (md.get("Artist") or {}).get("value", ""))).strip()
+            commons[sp["id"]] = {"title": pg["title"], "page": ii.get("descriptionurl"), "artist": artist[:120], "license": lic,
+                                 "credit": re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", (md.get("Credit") or {}).get("value", ""))).strip()[:160]}
+            break
+        time.sleep(0.3)
+    with open(credits_path, "w") as fh:
+        json.dump(commons, fh, indent=1)
+    print("commons photos:", len(commons))
+
 with open(manifest_path, "w") as fh:
     json.dump(manifest, fh, indent=1, sort_keys=True)
 with open(os.path.join(GIS, "_report.json"), "w") as fh:

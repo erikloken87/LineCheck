@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install requests beautifulsoup4 shapely
+      - run: pip install requests beautifulsoup4 shapely pillow
       - run: python scripts/fetch_data.py
       - run: python scripts/build_data.py
       - name: Commit changes

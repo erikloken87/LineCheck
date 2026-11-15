@@ -208,7 +208,8 @@ function renderPlan() {
     return `<div class="pcard ${i === sel ? "sel" : ""}">
       <div class="pc-h"><button class="pc-n" data-i="${i}">${s.cur ? "◎ " : "★ "}${esc(s.name)}</button>
         <button class="btn2" data-map="${i}" style="padding:4px 10px;font-size:12.500px">Map</button>
-        ${s.saved != null ? `<button class="pc-x" data-x="${s.saved}" aria-label="Remove">✕</button>` : ""}</div>
+        ${s.saved != null ? `<button class="btn2 ${s.prot ? "on" : ""}" data-prot="${s.saved}" style="padding:4px 10px;font-size:12.500px">${s.prot ? "✓ Protected" : "Protected?"}</button><button class="pc-x" data-x="${s.saved}" aria-label="Remove">✕</button>` : ""}</div>
+      ${s.prot ? `<div class="muted" style="margin:-2px 0 8px">Marked as protected (behind a breakwater or inside a harbor): swell and surf warnings count for much less here.</div>` : ""}
       <div class="pgrid">${days.map((d, j) => `<div class="pday ${j === best ? "best" : ""}">
         <b>${j === best ? `<span class="best-t">Best</span>` : ""}${esc(d.label)}</b>
         <div class="prow"><span>${d.top ? short[d.top.id] : "Bite"}</span>${d.top ? `<span class="pill ${d.top.d.rating}">${BLABEL[d.top.d.rating]}</span>` : "–"}</div>
@@ -225,6 +226,7 @@ function renderPlan() {
     ${Vis.spots().length ? "" : `<p class="muted">Add your regular spots: tap the map on the Here tab, open Visibility, then ☆ Save this spot.</p>`}`;
   P.querySelectorAll(".pc-n").forEach(b => b.onclick = () => { Spot.select(+b.dataset.i); renderPlan(); renderBite(); });
   P.querySelectorAll("[data-map]").forEach(b => b.onclick = () => { const s = spots[+b.dataset.map]; showTab("here"); if (!s.cur) { map.setView([s.lat, s.lon], 13); checkPin(L.latLng(s.lat, s.lon)); } });
+  P.querySelectorAll("[data-prot]").forEach(b => b.onclick = () => { const i = +b.dataset.prot; Vis.setProt(i, !Vis.spots()[i].prot); biteMiniAt = null; renderPlan(); renderBite(); });
   P.querySelectorAll(".pc-x").forEach(b => b.onclick = () => { Vis.removeSpot(+b.dataset.x); Spot.select(0); renderPlan(); renderBite(); });
 }
 

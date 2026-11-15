@@ -118,8 +118,9 @@ const Vis = (() => {
   function series(lon, lat) {
     const pt = nearest(st.cond?.points, lon, lat, p => [p.lon, p.lat], 20);
     if (!pt || !pt.it.wh) return null;
-    const p = pt.it, t0 = +new Date(p.t0 + "Z"), open = exposure(lon, lat);
-    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, hn: w == null ? null : w * trans(open, p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]),
+    const p = pt.it, t0 = +new Date(p.t0 + "Z"), open = exposure(lon, lat), prot = isProtected(lon, lat);
+    const tr = j => prot ? 0.15 : trans(open, p.wdir?.[j], p.wp?.[j]);
+    return p.wh.map((w, j) => ({ t: t0 + j * H3, h: w, prot, sh: tr(j), hn: w == null ? null : w * tr(j) * pf(p.wp?.[j]),
       per: p.wp?.[j], wind: p.ws?.[j], wdir: p.wd?.[j], sst: p.sst?.[j], cloud: p.cc?.[j] }));
   }
 
@@ -175,10 +176,11 @@ const Vis = (() => {
     let h = null, hOff = null, wind = null, sst = null, period = null, sdir = null, idx = 0, shelter = 1, settling = false;
     if (pt) {
       const p = pt.it, t0 = new Date(p.t0 + "Z"), n = (p.wh || []).length;
-      const open = exposure(lon, lat, opt.coarse);
+      const open = exposure(lon, lat, opt.coarse), prot = isProtected(lon, lat);
+      const tr = (dir, per) => prot ? 0.15 : trans(open, dir, per);   // a spot you marked as protected gets very little swell
       const nowI = Math.max(0, Math.min(n - 1, Math.floor((Date.now() - t0) / H3)));
       // swell that actually reaches the spot: offshore height x sheltering x period effect
-      const near = j => p.wh?.[j] == null ? null : p.wh[j] * trans(open, p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]);
+      const near = j => p.wh?.[j] == null ? null : p.wh[j] * tr(p.wdir?.[j], p.wp?.[j]) * pf(p.wp?.[j]);
       // swell memory: the biggest swell of the last 3 days, fading with a ~30 h settling time
       const heff = i => { let m = null;
         for (let j = Math.max(0, i - 24); j <= i; j++) { const v = near(j); if (v == null) continue; const x = v * Math.exp(-(i - j) * 3 / 30); if (m == null || x > m) m = x; }
@@ -190,7 +192,8 @@ const Vis = (() => {
         h = c ? sum / c : null; idx = Math.min(n - 1, a + 4);
       }
       hOff = p.wh?.[idx]; period = p.wp?.[idx]; sdir = p.wdir?.[idx]; wind = p.ws?.[idx]; sst = p.sst?.[idx];
-      shelter = trans(open, sdir, period);
+      shelter = tr(sdir, period);
+      if (prot) why.push("you marked this spot as protected from swell");
       const nowNear = near(idx);
       settling = h != null && nowNear != null && h >= 1.5 && h > nowNear * 1.25;
     }
@@ -238,6 +241,8 @@ const Vis = (() => {
   // ---------------------------------------------------------------- saved spots
   const spots = () => LS.get("spots", []);
   function saveSpot(name, lat, lon) { const s = spots(); s.push({ name: name.slice(0, 40), lat: +lat.toFixed(4), lon: +lon.toFixed(4) }); LS.set("spots", s); }
+  function setProt(i, on) { const s = spots(); if (s[i]) { s[i].prot = !!on; LS.set("spots", s); } }
+  const isProtected = (lon, lat) => spots().some(s => s.prot && km(lon, lat, s.lon, s.lat) < 0.4);
   function removeSpot(i) { const s = spots(); s.splice(i, 1); LS.set("spots", s); }
   function outlook(lon, lat) { return [0, 1, 2].map(d => estimate(lon, lat, d)); }
 
@@ -275,5 +280,5 @@ const Vis = (() => {
   }
   window.addEventListener("online", flushQueue);
 
-  return { init, estimate, outlook, tideAt, tideTimeline, series, predictor, spots, saveSpot, removeSpot, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
+  return { init, estimate, outlook, tideAt, tideTimeline, series, predictor, spots, saveSpot, removeSpot, setProt, isProtected, submitReport, reportsLeftToday, LABEL, rating, ready: () => !!st.cond, configured: () => !!st.cfg?.form_action };
 })();

@@ -87,11 +87,23 @@ const Bite = (() => {
     const boat = id === "rockfish" || id === "lingcod";
     const h = e.hn, w = e.wind, rate = e.rate == null ? null : Math.abs(e.rate);
     // Safety first: an active National Weather Service warning overrides everything else.
+    // Warnings cover a whole county's coast, so where this particular spot is sheltered (by your own marking, or
+    // because the coastline blocks most of the swell) the score is capped at Fair with a caution instead of forced to Poor.
     const shore = id === "surfperch" || id === "halibut" || id === "crab";
-    if (shore && e.surfWarn) add(/Warning/.test(e.surfWarn.event) ? .3 : .45, `${e.surfWarn.event} in effect: dangerous on beaches, rocks and jetties`);
-    if (id !== "surfperch" && e.seaWarn) add(/Small Craft/.test(e.seaWarn.event) ? .45 : .25, `${e.seaWarn.event} in effect: unsafe for small boats and kayaks`);
+    const calm = e.prot || (e.sh != null && e.sh <= 0.45 && h != null && h < 1.5);
+    const soft = e.prot ? "you marked this spot as protected, so it may still be fishable. Look before you go" : "most of the swell is blocked at this spot, so it may still be fishable. Look before you go";
+    let cap = 100;
+    const caution = text => { cap = 60; why.push({ up: false, w: 9, text }); };
+    if (shore && e.surfWarn) {
+      if (calm) caution(`${e.surfWarn.event} for this coast, but ${soft}`);
+      else add(/Warning/.test(e.surfWarn.event) ? .3 : .45, `${e.surfWarn.event} in effect: dangerous on beaches, rocks and jetties`);
+    }
+    if (id !== "surfperch" && e.seaWarn) {
+      if (calm) { if (cap === 100) caution(`${e.seaWarn.event} for these waters, but ${soft}, and stay inside the shelter`); }
+      else add(/Small Craft/.test(e.seaWarn.event) ? .45 : .25, `${e.seaWarn.event} in effect: unsafe for small boats and kayaks`);
+    }
     // Very large swell offshore means surges and sneaker waves even where the coast gives some shelter.
-    if (shore && e.h != null && e.h >= 2.4) add(e.h >= 3.5 ? .5 : .7, `${Math.round(e.h * 3.28084)} ft swell offshore: surges and sneaker waves even in sheltered spots`);
+    if (shore && !e.prot && e.h != null && e.h >= 2.4) add(calm ? .85 : e.h >= 3.5 ? .5 : .7, `${Math.round(e.h * 3.28084)} ft swell offshore: watch for surges and sneaker waves`);
     if (boat) {
       if (h != null) add(h < 1.2 ? 1 : h < 2 ? .8 : h < 2.8 ? .5 : .2, h < 1.2 ? "small swell at this spot" : h < 2 ? "moderate swell makes it harder to fish" : "big swell: rough and hard to hold bottom", h < 1.2);
       if (h != null && h >= 1.5 && e.per != null && e.per < 8) add(.85, "short, steep chop");
@@ -132,7 +144,7 @@ const Bite = (() => {
       if (w != null && w >= 12) add(w < 18 ? .8 : .55, "windy");
     }
     why.sort((a, b) => b.w - a.w);
-    return { score: Math.max(0, Math.min(100, Math.round(70 * p))), why: why.slice(0, 6) };
+    return { score: Math.max(0, Math.min(cap, Math.round(70 * p))), why: why.slice(0, 6) };
   }
   const rating = s => s >= 65 ? "good" : s >= 40 ? "fair" : "poor";
 

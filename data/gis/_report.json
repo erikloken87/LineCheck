@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-15T21:45:40.387632Z",
+ "fetched_at": "2026-11-16T23:26:26.590035Z",
  "datasets": {
   "mpa": {
    "code": "ds582",
@@ -305,11 +305,11 @@
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Mendocino": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Mendocino",
-   "bytes": 86704
+   "bytes": 86909
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Northern": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Northern",
-   "bytes": 85496
+   "bytes": 85612
   },
   "Fishing_Ocean_Regulations_Fishing-Map_SF-Bay": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/SF-Bay",
@@ -337,7 +337,7 @@
   },
   "photo_yelloweye": {
    "url": "https://www.fisheries.noaa.gov/species/yelloweye-rockfish",
-   "bytes": 207241,
+   "bytes": 207242,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/yelloweye_rockfish.jpg"
   },
   "photo_cowcod": {
@@ -442,7 +442,7 @@
   },
   "photo_pachalibut": {
    "url": "https://www.fisheries.noaa.gov/species/pacific-halibut",
-   "bytes": 194537,
+   "bytes": 194536,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/900x600-pacific-halibut-noaa.jpg"
   },
   "photo_sanddab": {

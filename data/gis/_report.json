@@ -1,5 +1,5 @@
 {
- "fetched_at": "2026-11-16T23:26:26.590035Z",
+ "fetched_at": "2026-11-24T01:43:54.453636Z",
  "datasets": {
   "mpa": {
    "code": "ds582",
@@ -248,8 +248,8 @@
     "long_ddm",
     "notes"
    ],
-   "count": 129,
-   "modified": 1788974371000,
+   "count": 130,
+   "modified": 1794932439000,
    "sample": [
     {
      "OBJECTID": 1,
@@ -281,15 +281,15 @@
  "pages": {
   "ocean-index": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean",
-   "bytes": 71865
+   "bytes": 71924
   },
   "groundfish-summary": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary",
-   "bytes": 46381
+   "bytes": 46440
   },
   "inseason": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason",
-   "bytes": 36997
+   "bytes": 37651
   },
   "ccr-632": {
    "url": "https://www.law.cornell.edu/regulations/california/14-CCR-632",
@@ -297,43 +297,43 @@
   },
   "mpa-network": {
    "url": "https://wildlife.ca.gov/Conservation/Marine/MPAs/Network",
-   "bytes": 51308
+   "bytes": 51362
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Central": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Central",
-   "bytes": 88763
+   "bytes": 88827
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Mendocino": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Mendocino",
-   "bytes": 86909
+   "bytes": 86968
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Northern": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Northern",
-   "bytes": 85612
+   "bytes": 86683
   },
   "Fishing_Ocean_Regulations_Fishing-Map_SF-Bay": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/SF-Bay",
-   "bytes": 85060
+   "bytes": 85119
   },
   "Fishing_Ocean_Regulations_Fishing-Map_San-Francisco": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/San-Francisco",
-   "bytes": 86688
+   "bytes": 86747
   },
   "Fishing_Ocean_Regulations_Fishing-Map_Southern": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Fishing-Map/Southern",
-   "bytes": 82876
+   "bytes": 82935
   },
   "Fishing_Ocean_Regulations_Groundfish-Summary": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Groundfish-Summary",
-   "bytes": 46381
+   "bytes": 46440
   },
   "Fishing_Ocean_Regulations_Inseason": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Inseason",
-   "bytes": 36997
+   "bytes": 37651
   },
   "Fishing_Ocean_Regulations_Salmon": {
    "url": "https://wildlife.ca.gov/Fishing/Ocean/Regulations/Salmon",
-   "bytes": 33470
+   "bytes": 33634
   },
   "photo_yelloweye": {
    "url": "https://www.fisheries.noaa.gov/species/yelloweye-rockfish",
@@ -394,7 +394,7 @@
   },
   "photo_yellowtail": {
    "url": "https://www.fisheries.noaa.gov/species/yellowtail-rockfish",
-   "bytes": 181478,
+   "bytes": 181561,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/yellowtail-rockfish-noaa-cbnms.jpg"
   },
   "photo_vermilion": {
@@ -403,12 +403,12 @@
   },
   "photo_canary": {
    "url": "https://www.fisheries.noaa.gov/species/canary-rockfish",
-   "bytes": 191056,
+   "bytes": 191139,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/canary-rockfish-noaa-750x500.jpg"
   },
   "photo_bocaccio": {
    "url": "https://www.fisheries.noaa.gov/species/bocaccio",
-   "bytes": 194598,
+   "bytes": 194681,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/750x500-bocaccio_73_cm_edit.jpg"
   },
   "photo_starry": {
@@ -425,7 +425,7 @@
   },
   "photo_lingcod": {
    "url": "https://www.fisheries.noaa.gov/species/lingcod",
-   "bytes": 174554,
+   "bytes": 174637,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/900x600-lingcod-noaa.jpg"
   },
   "photo_cabezon": {
@@ -442,7 +442,7 @@
   },
   "photo_pachalibut": {
    "url": "https://www.fisheries.noaa.gov/species/pacific-halibut",
-   "bytes": 194536,
+   "bytes": 194619,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/900x600-pacific-halibut-noaa.jpg"
   },
   "photo_sanddab": {
@@ -463,7 +463,7 @@
   },
   "photo_petrale": {
    "url": "https://www.fisheries.noaa.gov/species/petrale-sole",
-   "bytes": 176035,
+   "bytes": 176118,
    "image": "https://www.fisheries.noaa.gov/themes/custom/noaa_components/images/open-graph.jpg"
   },
   "photo_chilipepper": {
@@ -472,7 +472,7 @@
   },
   "photo_widow": {
    "url": "https://www.fisheries.noaa.gov/species/widow-rockfish",
-   "bytes": 178075,
+   "bytes": 178158,
    "image": "https://www.fisheries.noaa.gov/s3/dam-migration/school-of-widow-rockfish-swfsc-fed.jpg"
   }
  }
